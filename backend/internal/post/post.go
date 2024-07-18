@@ -3,14 +3,14 @@ package post
 import (
 	"context"
 	"fmt"
+
 	// "fmt"
 	"time"
-
-	// "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/common"
 )
 
 type Post struct {
 	ID string
+	User_id string
 	Title string
 	Content string
 	Created_at time.Time
@@ -19,6 +19,7 @@ type Post struct {
 
 type PostStore interface {
 	GetPost(context.Context, string) (Post, error)
+	CreatePost(context.Context, Post) (Post, error)
 }
 
 type PostService struct {
@@ -29,6 +30,14 @@ func NewPostService(store PostStore) *PostService {
 	return &PostService{
 			PostStore: store,
 	}
+}
+
+func (s *PostService) CreatePost(ctx context.Context, post Post) (Post, error) {
+	insertedPost, err := s.PostStore.CreatePost(ctx, post)
+	if err != nil {
+		return Post{}, err
+	}
+	return insertedPost, nil
 }
 
 func (s *PostService) GetPost(ctx context.Context, id string) (Post, error) {

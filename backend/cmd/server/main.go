@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
+	transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
 )
 
@@ -24,6 +25,10 @@ func Run() error {
 
 	postService := post.NewPostService(db)
 
+	httpHandler := transportHttp.NewHandler(postService)
+	if err := httpHandler.Serve(); err != nil {
+		return err
+	}
 
 	return nil
 }
