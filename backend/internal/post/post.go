@@ -20,6 +20,7 @@ type Post struct {
 type PostStore interface {
 	GetPostByID(context.Context, string) (Post, error)
 	CreatePost(context.Context, Post) (Post, error)
+	GetAllPosts(context.Context) ([]Post, error)
 }
 
 type PostService struct {
@@ -41,16 +42,32 @@ func (s *PostService) CreatePost(ctx context.Context, post Post) (Post, error) {
 	return insertedPost, nil
 }
 
-/*
- * func: GetPostByID
- * Interacts with servcie layer to get a post by id from repository layer
+/**
+ * GetPostByID
+ * * Interacts with servcie layer to get a post by id from repository layer
+ * @params: ctx, id
  */
 func (s *PostService) GetPostByID(ctx context.Context, id string) (Post, error) {
-	fmt.Println("Retrieving a post")
+	fmt.Printf("Retrieving a post with ID: %s", id)
 	post, err := s.PostStore.GetPostByID(ctx, id)
 	if err != nil {
 		fmt.Println(err)
 		return Post{}, err
+	}
+
+	return post, nil
+}
+
+/**
+ * GetAllPosts
+ * * Gets all posts from the repository layer and returns it
+ * @param: ctx
+ */
+func (s *PostService) GetAllPosts(ctx context.Context) ([]Post, error) {
+	fmt.Println("Retrieving All Posts")
+	post, err := s.PostStore.GetAllPosts(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting all posts: %w", err)
 	}
 
 	return post, nil

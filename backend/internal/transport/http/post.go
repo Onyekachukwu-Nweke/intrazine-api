@@ -16,6 +16,7 @@ import (
 type PostService interface {
 	CreatePost(context.Context, post.Post) (post.Post, error)
 	GetPostByID(ctx context.Context, ID string) (post.Post, error)
+	GetAllPosts(context.Context) ([]post.Post, error)
 }
 
 type Response struct {
@@ -37,6 +38,7 @@ func convertPostRequestToPost(p PostRequest) post.Post {
 }
 
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var pst PostRequest
 	if err := json.NewDecoder(r.Body).Decode(&pst); err != nil {
 		return
@@ -73,6 +75,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 /************** GetPostByID (Transport Layer) ************/
 func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if id == "" {
@@ -92,7 +95,7 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
 		return
-}
+	}
 	if err != nil {
 		// TODO: Add Logger
 		log.Print(err)
@@ -101,6 +104,21 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(pst); err != nil {
+		panic(err)
+	}
+}
+
+func (h *Handler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	psts, err := h.PostService.GetAllPosts(r.Context())
+	if err != nil {
+		log.Print(err) // TODO: Replace with structured logging
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(psts); err != nil {
 		panic(err)
 	}
 }

@@ -12,7 +12,6 @@ import (
 )
 
 
-
 type PostRow struct {
 	ID string
 	User_id sql.NullString
@@ -50,7 +49,7 @@ func (d *Database) CreatePost(ctx context.Context, pst post.Post) (post.Post, er
 		`INSERT INTO Posts (id, user_id, title, content, created_at, updated_at) VALUES (:id, :user_id, :title, :content, :created_at, :updated_at)`, pstRow,
 	)
 	if err != nil {
-		return post.Post{}, fmt.Errorf("failed to insert comment: %w", err)
+		return post.Post{}, fmt.Errorf("failed to insert post: %w", err)
 	}
 	if err := rows.Close(); err != nil {
 		return post.Post{}, fmt.Errorf("failed to close row:  %w", err)
@@ -82,4 +81,32 @@ func (d *Database) GetPostByID(
 		}
 
 		return convertPostRowToPost(postRow), nil
+}
+
+func (d *Database) GetAllPosts(ctx context.Context) ([]post.Post, error) {
+	rows, err := d.Client.QueryContext(
+		ctx,
+		`SELECT * from posts`,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error querying posts: %w", err)
+	}
+
+	defer rows.Close()
+
+	var posts []post.Post
+	for rows.Next() {
+		var p PostRow
+		err := rows.Scan(&p.ID, &p.User_id, &p.Title, &p.Content, &p.Created_at, &p.Updated_at)
+		if err != nil {
+				return nil, fmt.Errorf("error scanning post: %w", err)
+		}
+		posts = append(posts, convertPostRowToPost(p))
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error reading post rows: %w", err)
+	}
+
+	return posts, nil
 }
