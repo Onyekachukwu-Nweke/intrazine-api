@@ -110,3 +110,46 @@ func (d *Database) GetAllPosts(ctx context.Context) ([]post.Post, error) {
 
 	return posts, nil
 }
+
+func (d *Database) UpdatePost(ctx context.Context, id string, pst post.Post) (post.Post, error) {
+	pst.Updated_at = time.Now()
+	postRow := PostRow{
+		ID: id,
+		User_id: sql.NullString{String: pst.User_id, Valid: true},
+		Title: sql.NullString{String: pst.Title, Valid: true},
+		Content: sql.NullString{String: pst.Content, Valid: true},
+		Created_at: sql.NullTime{Time: pst.Created_at, Valid: true},
+		Updated_at: sql.NullTime{Time: pst.Updated_at, Valid: true},
+	}
+
+	rows, err := d.Client.NamedQueryContext(
+		ctx,
+		`UPDATE posts SET 
+		title = :title,
+		content = :content,
+		updated_at = :updated_at
+		WHERE id = :id`,
+		postRow,
+	)
+	if err != nil {
+		return post.Post{}, fmt.Errorf("failed to update post: %w", err)
+	}
+
+	if err := rows.Close(); err != nil {
+		return post.Post{}, fmt.Errorf("failed to close rows: %w", err)
+	}
+
+	return convertPostRowToPost(postRow), nil
+}
+
+func (d *Database) DeletePost(ctx context.Context, id string) error {
+	_, err := d.Client.ExecContext(
+		ctx,
+		`DELETE FROM posts where id = $1`,
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to delete post from database: %w", err)
+	}
+	return nil
+}

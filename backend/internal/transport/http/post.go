@@ -17,6 +17,8 @@ type PostService interface {
 	CreatePost(context.Context, post.Post) (post.Post, error)
 	GetPostByID(ctx context.Context, ID string) (post.Post, error)
 	GetAllPosts(context.Context) ([]post.Post, error)
+	UpdatePost(ctx context.Context, ID string, updatedPost post.Post) (post.Post, error)
+	DeletePost(ctx context.Context, ID string) error
 }
 
 type Response struct {
@@ -108,6 +110,7 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/************** GetAllPosts (Transport Layer) ************/
 func (h *Handler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	psts, err := h.PostService.GetAllPosts(r.Context())
@@ -119,6 +122,56 @@ func (h *Handler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(psts); err != nil {
+		panic(err)
+	}
+}
+
+func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Response{Message: "Missing Post ID"})
+		return
+	}
+
+	var pst post.Post
+	if err := json.NewDecoder(r.Body).Decode(&pst); err != nil {
+		return
+	}
+
+	cmt, err := h.PostService.UpdatePost(r.Context(), id, pst)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(cmt); err != nil {
+		panic(err)
+	}
+}
+
+func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Response{Message: "Missing Post ID"})
+		return
+	}
+
+	err := h.PostService.DeletePost(r.Context(), id)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(Response{Message: "Successfully deleted"}); err != nil {
 		panic(err)
 	}
 }

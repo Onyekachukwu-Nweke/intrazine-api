@@ -21,6 +21,8 @@ type PostStore interface {
 	GetPostByID(context.Context, string) (Post, error)
 	CreatePost(context.Context, Post) (Post, error)
 	GetAllPosts(context.Context) ([]Post, error)
+	UpdatePost(context.Context, string, Post) (Post, error)
+	DeletePost(context.Context, string) error
 }
 
 type PostService struct {
@@ -71,4 +73,26 @@ func (s *PostService) GetAllPosts(ctx context.Context) ([]Post, error) {
 	}
 
 	return post, nil
+}
+
+/**
+ *
+ *
+ */
+func (s *PostService) UpdatePost(ctx context.Context, id string, updatedPost Post) (Post, error) {
+	pst, err := s.PostStore.UpdatePost(ctx, id, updatedPost)
+	if err != nil {
+		fmt.Println("error updating post")
+		return Post{}, err
+	}
+
+	return pst, nil
+}
+
+/**
+ *
+ *
+ */
+func (s *PostService) DeletePost(ctx context.Context, id string) error {
+	return s.PostStore.DeletePost(ctx, id)
 }

@@ -39,9 +39,16 @@ func (h *Handler) mapRoutes(){
 		fmt.Fprintf(w, "Pong, API is up")
 	})
 
+	// User Service Routes
+
+	// Post Service Routes
 	h.Router.HandleFunc("/api/v1/posts", (h.CreatePost)).Methods("POST")
 	h.Router.HandleFunc("/api/v1/posts/{id}", (h.GetPostByID)).Methods("GET")
 	h.Router.HandleFunc("/api/v1/posts", (h.GetAllPosts)).Methods("GET")
+	h.Router.HandleFunc("/api/v1/posts/{id}", (h.UpdatePost)).Methods("PUT")
+	h.Router.HandleFunc("/api/v1/posts/{id}", (h.DeletePost)).Methods("DELETE")
+
+	// Comment Service Routes
 }
 
 func (h *Handler) Serve() error {
