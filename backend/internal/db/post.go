@@ -59,7 +59,7 @@ func (d *Database) CreatePost(ctx context.Context, pst post.Post) (post.Post, er
 	return pst, nil
 }
 
-func (d *Database) GetPost(
+func (d *Database) GetPostByID(
 	ctx context.Context,
 	uuid string,
 ) (post.Post, error) {
@@ -67,14 +67,17 @@ func (d *Database) GetPost(
 
 	row := d.Client.QueryRowContext(
 		ctx, 
-		`SELECT id, title
-		FROM post
+		`SELECT id, user_id, title, content, created_at, updated_at
+		FROM Posts
 		WHERE id = $1`,
 		uuid)
 	
-		err := row.Scan(&postRow.ID, &postRow.Title, &postRow.Content, &postRow.Created_at, &postRow.Updated_at)
+		err := row.Scan(&postRow.ID, &postRow.User_id,&postRow.Title, &postRow.Content, &postRow.Created_at, &postRow.Updated_at)
 
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return post.Post{}, fmt.Errorf("no post found with ID: %w", err) // Case II and III distinction
+		}
 			return post.Post{}, fmt.Errorf("error fetching post from id: %w", err)
 		}
 

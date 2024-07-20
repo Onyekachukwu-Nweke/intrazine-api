@@ -9,16 +9,16 @@ import (
 )
 
 type Post struct {
-	ID string
-	User_id string
-	Title string
-	Content string
-	Created_at time.Time
-	Updated_at time.Time
+	ID string `json:"id"`
+	User_id string `json:"user_id" validate:"required"`
+	Title string  `json:"title" validate:"required"`
+	Content string `json:"content" validate:"required"`
+	Created_at time.Time `json:"created_at"`
+	Updated_at time.Time `json:"updated_at"`
 }
 
 type PostStore interface {
-	GetPost(context.Context, string) (Post, error)
+	GetPostByID(context.Context, string) (Post, error)
 	CreatePost(context.Context, Post) (Post, error)
 }
 
@@ -32,6 +32,7 @@ func NewPostService(store PostStore) *PostService {
 	}
 }
 
+/******************** CreatePost  ***********************/
 func (s *PostService) CreatePost(ctx context.Context, post Post) (Post, error) {
 	insertedPost, err := s.PostStore.CreatePost(ctx, post)
 	if err != nil {
@@ -40,9 +41,13 @@ func (s *PostService) CreatePost(ctx context.Context, post Post) (Post, error) {
 	return insertedPost, nil
 }
 
-func (s *PostService) GetPost(ctx context.Context, id string) (Post, error) {
+/*
+ * func: GetPostByID
+ * Interacts with servcie layer to get a post by id from repository layer
+ */
+func (s *PostService) GetPostByID(ctx context.Context, id string) (Post, error) {
 	fmt.Println("Retrieving a post")
-	post, err := s.PostStore.GetPost(ctx, id)
+	post, err := s.PostStore.GetPostByID(ctx, id)
 	if err != nil {
 		fmt.Println(err)
 		return Post{}, err

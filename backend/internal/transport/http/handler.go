@@ -40,6 +40,7 @@ func (h *Handler) mapRoutes(){
 	})
 
 	h.Router.HandleFunc("/api/v1/posts", (h.CreatePost)).Methods("POST")
+	h.Router.HandleFunc("/api/v1/posts/{id}", (h.GetPostByID)).Methods("GET")
 }
 
 func (h *Handler) Serve() error {

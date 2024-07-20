@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/mux"
 )
 
 
 type PostService interface {
 	CreatePost(context.Context, post.Post) (post.Post, error)
-	GetPost(ctx context.Context, ID string) (post.Post, error)
+	GetPostByID(ctx context.Context, ID string) (post.Post, error)
 }
 
 type Response struct {
@@ -43,18 +45,62 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	validate := validator.New()
 	err := validate.Struct(pst)
 	if err != nil {
-		http.Error(w, "not a valid post", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Response{Message: "Post not valid"})
+		// TODO: Add Logger
+		log.Print(err)
 		return
 	}
 
 	convertedPost := convertPostRequestToPost(pst)
 	createdPost, err := h.PostService.CreatePost(r.Context(), convertedPost)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Response{Message: "Post could not created"})
+		// TODO: Add Logger
 		log.Print(err)
 		return
 	}
 
+	// TODO: Add Logger
+	log.Print("Post Successfully Created")
+
 	if err := json.NewEncoder(w).Encode(createdPost); err != nil {
+		panic(err)
+	}
+}
+
+
+/************** GetPostByID (Transport Layer) ************/
+func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Response{Message: "Missing Post ID"})
+		return
+	}
+
+	pst, err := h.PostService.GetPostByID(r.Context(), id)
+	if err != nil {
+		if strings.Contains(err.Error(), "no post found") {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(Response{Message: "Post not found"})
+				return
+		}
+		log.Print(err) // TODO: Replace with structured logging
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
+		return
+}
+	if err != nil {
+		// TODO: Add Logger
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(pst); err != nil {
 		panic(err)
 	}
 }
