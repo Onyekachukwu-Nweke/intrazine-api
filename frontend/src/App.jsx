@@ -1,5 +1,6 @@
 import Navbar from './components/navbar/navbar.components';
 import HeroSection from './components/hero/hero.components';
+import FeatureSection from './components/feature/feature.component';
 
 function App() {
 
@@ -7,6 +8,7 @@ function App() {
     <>
       <Navbar />
       <HeroSection />
+      <FeatureSection />
     </>
   )
 }

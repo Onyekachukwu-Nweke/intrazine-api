@@ -2,7 +2,7 @@ const Navbar = () => {
   return (
     <nav className='flex flex-col md:flex-row bg-black justify-between items-center p-4 text-light'>
       <div className='flex-shrink-0'>
-        <a href="#" className='text-2xl font-bold'>Piko Blog</a>
+        <a href="#" className='text-light italic text-2xl font-bold'>Piko Blog</a>
       </div>
 
       <div className='flex flex-col items-center md:flex-row md:ml-auto mt-4 md:mt-0'>
