@@ -1,10 +1,10 @@
 import featureImage from '../../assets/feature-image.png'; // Ensure this path is correct
 
 const posts = [
-  { id: 1, title: '8 Figma design systems that you can download for free today.', author: 'Onyeka', date: 'Aug 2024' },
-  { id: 2, title: 'SRE, A Practical Guide', author: 'Onyeka', date: 'Aug 2024' },
-  { id: 3, title: 'Daily DevOps Nuggets', author: 'Onyeka', date: 'Aug 2024' },
-  { id: 4, title: 'Fullstack Software Engineering, A Lesson Learnt the Hard Way', author: 'Onyeka', date: 'Aug 2024' },
+  { id: 1, title: '8 Figma design systems that you can download for free today.', author: 'Onyeka', date: 'Aug 24, 2024' },
+  { id: 2, title: 'SRE, A Practical Guide', author: 'Onyeka', date: 'Aug 24, 2024' },
+  { id: 3, title: 'Daily DevOps Nuggets', author: 'Onyeka', date: 'Aug 24, 2024' },
+  { id: 4, title: 'Fullstack Software Engineering, A Lesson Learnt the Hard Way', author: 'Onyeka', date: 'Aug 24, 2024' },
   // Add more posts as needed
 ];
 
@@ -15,9 +15,9 @@ const FeatureSection = () => {
         {/* Feature Post */}
         <div className="md:w-2/3 p-4">
           <h2 className="text-3xl font-bold mb-4">Feature Post</h2>
-          <div className="bg-gray-100 p-6 rounded-lg">
+          <div className="p-6 rounded-lg">
             <img src={featureImage} alt="Feature" className="w-full h-64 object-cover rounded-lg mb-4" />
-            <p className="text-sm text-gray-600 mb-2">By Onyeka | Aug 2024</p>
+            <p className="text-sm text-gray-600 mb-2">By Onyeka | Aug 24, 2024</p>
             <h3 className="text-2xl font-semibold mb-2">Altschool Africa Experience</h3>
             <p className="mb-4">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum,
@@ -32,8 +32,8 @@ const FeatureSection = () => {
           <h2 className="text-3xl font-bold mb-4">All Posts</h2>
           <ul className="space-y-4">
             {posts.map((post) => (
-              <li key={post.id} className="bg-gray-100 p-4 rounded-lg">
-                <p className="text-sm text-gray-600">By {post.author} | {post.date}</p>
+              <li key={post.id} className="p-4 hover:bg-light-yellow rounded-lg">
+                <p className="text-sm text-gray-600">By <span className='text-purple'>{post.author}</span> | {post.date}</p>
                 <h3 className="text-xl font-semibold">{post.title}</h3>
               </li>
             ))}
