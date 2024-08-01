@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	// "log"
+
+	// "github.com/joho/godotenv"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
-	transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
+	transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
 )
 
 func Run() error {
@@ -35,6 +38,13 @@ func Run() error {
 
 func main() {
 	fmt.Println("Piko Blog API")
+
+	// Load the .env file
+	// err := godotenv.Load()
+	// if err != nil {
+	// 		log.Fatalf("Error loading .env file")
+	// }
+	
 	if err := Run(); err != nil {
 		fmt.Println(err)
 	}
