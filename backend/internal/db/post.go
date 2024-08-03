@@ -46,8 +46,7 @@ func (d *Database) CreatePost(ctx context.Context, pst post.Post) (post.Post, er
 	}
 	rows, err := d.Client.NamedQueryContext(
 		ctx,
-		`INSERT INTO Posts (id, user_id, title, content, created_at, updated_at) VALUES (:id, :user_id, :title, :content, :created_at, :updated_at)`, pstRow,
-	)
+		`INSERT INTO Posts (id, user_id, title, content, created_at, updated_at) VALUES (:id, :user_id, :title, :content, :created_at, :updated_at)`, pstRow)
 	if err != nil {
 		return post.Post{}, fmt.Errorf("failed to insert post: %w", err)
 	}

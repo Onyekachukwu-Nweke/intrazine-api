@@ -1,4 +1,4 @@
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaFacebook, FaXTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa6';
 
 const Footer = () => {
   return (
@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Logo and Navigation */}
         <div className="flex flex-col items-start">
-          <h3 className="text-2xl font-bold mb-4 text-white">Finsweet</h3>
+          <h3 className="text-2xl font-bold mb-4 text-white">Piko Blog</h3>
           <ul className="space-y-2">
             <li><a href="#" className="text-gray-400 hover:text-white">Home</a></li>
             <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
@@ -31,11 +31,11 @@ const Footer = () => {
 
         {/* Contact Information */}
         <div className="flex flex-col items-start space-y-4">
-          <p>Finstreet 118 2561 Fintown</p>
-          <p>Hello@finsweet.com 020 7993 2905</p>
+          <p>1 Remote Avenue, Remote Ville</p>
+          <p>hello@piko-blog.com 0813 583 3089</p>
           <div className="flex space-x-4 text-gray-400">
             <a href="#" className="hover:text-white"><FaFacebook /></a>
-            <a href="#" className="hover:text-white"><FaTwitter /></a>
+            <a href="#" className="hover:text-white"><FaXTwitter /></a>
             <a href="#" className="hover:text-white"><FaInstagram /></a>
             <a href="#" className="hover:text-white"><FaLinkedin /></a>
           </div>

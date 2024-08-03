@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -15,7 +16,7 @@ type User struct {
 }
 
 type UserStore interface {
-	CreateUser(ctx context.Context, user User) (string, error)
+	CreateUser(ctx context.Context, user User) (User, error)
 }
 
 type UserService struct {
@@ -34,5 +35,11 @@ func NewUserService(store UserStore) *UserService {
  *
  */
 func (s *UserService) CreateUser(ctx context.Context, user User) (User, error) {
-	insertedUser
+	insertedUser, err := s.UserStore.CreateUser(ctx, user)
+	if err != nil {
+		fmt.Println(err)
+		return User{}, err
+	}
+
+	return insertedUser, nil
 }

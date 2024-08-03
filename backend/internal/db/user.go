@@ -3,11 +3,11 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRow struct {
@@ -17,11 +17,6 @@ type UserRow struct {
 	PasswordHash sql.NullString
 	Created_at sql.NullTime
 	Updated_at sql.NullTime
-}
-
-func hashPassword(password string) (string, error) {
-	hash_pass, err := bcrypt.GenerateFromPassword([]byte(password), 112)
-	return string(hash_pass), err
 }
 
 func (d *Database) CreateUser(ctx context.Context, usr user.User) (user.User, error) {
@@ -42,4 +37,9 @@ func (d *Database) CreateUser(ctx context.Context, usr user.User) (user.User, er
 	if err != nil {
 		return user.User{}, fmt.Errorf("failed to create user: %w", err)
 	}
+	if err := rows.Close(); err != nil {
+		return user.User{}, fmt.Errorf("failed to close row:  %w", err)
+	}
+
+	return usr, nil
 }
