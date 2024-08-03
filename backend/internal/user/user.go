@@ -17,6 +17,7 @@ type User struct {
 
 type UserStore interface {
 	CreateUser(ctx context.Context, user User) (User, error)
+	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)
 }
 
 type UserService struct {
@@ -42,4 +43,13 @@ func (s *UserService) CreateUser(ctx context.Context, user User) (User, error) {
 	}
 
 	return insertedUser, nil
+}
+
+func (s *UserService) CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error) {
+	exists, field, err = s.UserStore.CheckUserExists(ctx, username, email)
+	if err != nil {
+		fmt.Println(err)
+		return false, "", err
+	}
+	return exists, field, nil
 }

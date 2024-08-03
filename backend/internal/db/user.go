@@ -11,12 +11,28 @@ import (
 )
 
 type UserRow struct {
-	ID string
-	Username sql.NullString
-	Email sql.NullString
-	PasswordHash sql.NullString
-	Created_at sql.NullTime
-	Updated_at sql.NullTime
+	ID string											`db:"id"`
+	Username sql.NullString				`db:"username"`
+	Email sql.NullString					`db:"email"`
+	PasswordHash sql.NullString		`db:"password_hash"`
+	Created_at sql.NullTime				`db:"created_at"`
+	Updated_at sql.NullTime				`db:"updated_at"`
+}
+
+func (d *Database) CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error) {
+	var userCount int
+	err = d.Client.QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2`, username, email).Scan(&userCount)
+	if err != nil {
+		return false, "", err
+	}
+	if userCount > 0 {
+		// Check which field is duplicated
+		if err := d.Client.QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE username = $1`, username).Scan(&userCount); err == nil && userCount > 0 {
+				return true, "username", nil
+		}
+		return true, "email", nil
+  }
+  return false, "", nil
 }
 
 func (d *Database) CreateUser(ctx context.Context, usr user.User) (user.User, error) {
@@ -33,7 +49,7 @@ func (d *Database) CreateUser(ctx context.Context, usr user.User) (user.User, er
 	}
 	rows, err := d.Client.NamedQueryContext(
 		ctx,
-	  `INSERT INTO users (id, username, email, password_hash, created_at, updated_at) VALUES`, usrRow)
+	  `INSERT INTO users (id, username, email, password_hash, created_at, updated_at) VALUES (:id, :username, :email, :password_hash, :created_at, :updated_at)`, usrRow)
 	if err != nil {
 		return user.User{}, fmt.Errorf("failed to create user: %w", err)
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
 	transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
 )
 
@@ -26,9 +27,10 @@ func Run() error {
 
 	fmt.Println("successfully connected and pinged database")
 
+	userService := user.NewUserService(db)
 	postService := post.NewPostService(db)
 
-	httpHandler := transportHttp.NewHandler(postService)
+	httpHandler := transportHttp.NewHandler(postService, userService)
 	if err := httpHandler.Serve(); err != nil {
 		return err
 	}

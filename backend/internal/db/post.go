@@ -11,7 +11,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-
 type PostRow struct {
 	ID string
 	User_id sql.NullString

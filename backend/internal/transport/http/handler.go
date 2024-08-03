@@ -16,12 +16,18 @@ import (
 type Handler struct {
 	Router *mux.Router
 	PostService PostService
+	UserService UserService
 	Server *http.Server
 }
 
-func NewHandler(postService PostService) *Handler  {
+type Response struct {
+	Message string
+}
+
+func NewHandler(postService PostService, userService UserService) *Handler  {
 	h := &Handler{
 		PostService: postService,
+		UserService: userService,
 	}
 	h.Router = mux.NewRouter()
 	h.mapRoutes()
@@ -40,6 +46,7 @@ func (h *Handler) mapRoutes(){
 	})
 
 	// User Service Routes
+	h.Router.HandleFunc("/api/v1/users/signup", (h.Signup)).Methods("POST")
 
 	// Post Service Routes
 	h.Router.HandleFunc("/api/v1/posts", (h.CreatePost)).Methods("POST")

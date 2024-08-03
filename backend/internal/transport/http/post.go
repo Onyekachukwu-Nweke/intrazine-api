@@ -21,9 +21,6 @@ type PostService interface {
 	DeletePost(ctx context.Context, ID string) error
 }
 
-type Response struct {
-	Message string
-}
 
 type PostRequest struct {
 	User_id string `json:"user_id" validate:"required"`
@@ -98,12 +95,12 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
 		return
 	}
-	if err != nil {
-		// TODO: Add Logger
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	// if err != nil {
+	// 	// TODO: Add Logger
+	// 	log.Print(err)
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
 
 	if err := json.NewEncoder(w).Encode(pst); err != nil {
 		panic(err)
