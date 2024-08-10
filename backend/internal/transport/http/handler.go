@@ -47,6 +47,7 @@ func (h *Handler) mapRoutes(){
 
 	// User Service Routes
 	h.Router.HandleFunc("/api/v1/users/signup", (h.Signup)).Methods("POST")
+	h.Router.HandleFunc("/api/v1/users/login", (h.Login)).Methods("POST")
 
 	// Post Service Routes
 	h.Router.HandleFunc("/api/v1/posts", (h.CreatePost)).Methods("POST")

@@ -7,14 +7,17 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
+	"github.com/golang-jwt/jwt"
 )
 
 type UserService interface {
 	CreateUser(ctx context.Context, user user.User) (user.User, error)
 	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)
+	Login(ctx context.Context, username, password string) (user.User, error)
 }
 
 type UserRequest struct {
@@ -22,6 +25,11 @@ type UserRequest struct {
 	Email           string `json:"email"`
 	Password        string `json:"password"`
 	PasswordConfirm string `json:"password_confirm"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 func convertUserRequestToUser(u UserRequest, PasswordHash string) user.User {
@@ -100,4 +108,39 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"id": createdUser.ID})
+}
+
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var logReq LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&logReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Response{Message: "Invalid Request Body"})
+		return
+	}
+
+	user, err := h.UserService.Login(r.Context(), logReq.Username, logReq.Password)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(Response{Message: "username or password not correct"})
+		return
+	}
+
+	// Create the JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": user.Username,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte("missionimpossible"))
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 }

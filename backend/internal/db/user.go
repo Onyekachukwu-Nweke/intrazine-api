@@ -19,6 +19,15 @@ type UserRow struct {
 	Updated_at sql.NullTime				`db:"updated_at"`
 }
 
+func convertUserRowToUser(u UserRow) user.User {
+	return user.User{
+		ID: u.ID,
+		Username: u.Username.String,
+		Email: u.Email.String,
+		PasswordHash: u.PasswordHash.String,
+	}
+}
+
 func (d *Database) CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error) {
 	var userCount int
 	err = d.Client.QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2`, username, email).Scan(&userCount)
@@ -58,4 +67,23 @@ func (d *Database) CreateUser(ctx context.Context, usr user.User) (user.User, er
 	}
 
 	return usr, nil
+}
+
+func (d *Database) GetUserByUsername(ctx context.Context, username string) (user.User, error) {
+	var usrRow  UserRow
+
+	row := d.Client.QueryRowContext(
+		ctx,
+		`SELECT id, username, email, password_hash FROM users WHERE username = $1`,
+		username)
+	
+	err := row.Scan(&usrRow.ID, &usrRow.Username, &usrRow.Email, &usrRow.PasswordHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+				return user.User{}, fmt.Errorf("no user found with username: %w", err)
+		}
+		return user.User{}, fmt.Errorf("error fetching user from username: %w", err)
+	}
+
+	return convertUserRowToUser(usrRow), nil
 }

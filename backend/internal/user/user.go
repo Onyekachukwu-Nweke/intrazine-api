@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
 )
 
 type User struct {
@@ -18,6 +20,7 @@ type User struct {
 type UserStore interface {
 	CreateUser(ctx context.Context, user User) (User, error)
 	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 }
 
 type UserService struct {
@@ -52,4 +55,21 @@ func (s *UserService) CheckUserExists(ctx context.Context, username, email strin
 		return false, "", err
 	}
 	return exists, field, nil
+}
+
+func (s *UserService) Login(ctx context.Context, username, password string) (User, error) {
+	user, err := s.UserStore.GetUserByUsername(ctx, username)
+	if err != nil {
+		fmt.Println(err)
+		return User{}, err
+	}
+
+	// Check the Password
+	valid := utils.CheckPasswordHash(user.PasswordHash, password)
+	// fmt.Println(valid)
+	if !valid {
+		return User{}, fmt.Errorf("invalid credentials")
+	}
+
+	return user, nil
 }
