@@ -34,8 +34,8 @@ type LoginRequest struct {
 
 func convertUserRequestToUser(u UserRequest, PasswordHash string) user.User {
 	return user.User{
-		Username: u.Username,
-		Email: u.Email,
+		Username:     u.Username,
+		Email:        u.Email,
 		PasswordHash: PasswordHash,
 	}
 }
@@ -45,7 +45,7 @@ var emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`
 
 func isEmailValid(e string) bool {
 	if len(e) < 3 && len(e) > 254 {
-			return false
+		return false
 	}
 	return emailRegex.MatchString(e)
 }
@@ -56,13 +56,13 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&usrReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{Message: "Invalid Request Body"})
-		return 
+		return
 	}
 
 	if usrReq.Password != usrReq.PasswordConfirm {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{Message: "Passwords do not match"})
-		return 
+		return
 	}
 
 	// Validate email format
@@ -130,7 +130,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	// Create the JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": user.Username,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte("missionimpossible"))
@@ -142,5 +142,5 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+	json.NewEncoder(w).Encode(map[string]string{"token": tokenString, "user_id": user.ID, "username": user.Username})
 }
