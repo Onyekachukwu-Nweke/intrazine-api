@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/comment"
 	uuid "github.com/satori/go.uuid"
@@ -11,21 +12,25 @@ import (
 
 type CommentRow struct {
 	ID string
-	Slug sql.NullString
-	Body sql.NullString
-	Author sql.NullString
+	PostID sql.NullString
+	UserID sql.NullString
+	Content sql.NullString
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
 }
 
 func convertCommentRowToComment(c CommentRow) comment.Comment {
 	return comment.Comment{
 		ID: c.ID,
-		Slug: c.Slug.String,
-		Author: c.Author.String,
-		Body: c.Body.String,
+		PostID: c.PostID.String,
+		UserID: c.UserID.String,
+		Content: c.Content.String,
+		CreatedAt: c.CreatedAt.Time,
+		UpdatedAt: c.UpdatedAt.Time,
 	}
 }
 
-func (d *Database) GetComment(
+func (d *Database) GetCommentByID(
 	ctx context.Context, 
 	uuid string,
 	) (comment.Comment, error) {
@@ -37,12 +42,12 @@ func (d *Database) GetComment(
 
 		row := d.Client.QueryRowContext(
 			ctx,
-			`SELECT id, slug, body, author
+			`SELECT id, post_id, user_id, content, created_at, updated_at 
 			FROM comments
 			WHERE id = $1`,
 			uuid,
 		)
-		err := row.Scan(&cmtRow.ID, &cmtRow.Slug, &cmtRow.Body, &cmtRow.Author)
+		err := row.Scan(&cmtRow.ID, &cmtRow.PostID, &cmtRow.UserID, &cmtRow.Content, &cmtRow.CreatedAt, &cmtRow.UpdatedAt)
 		if err != nil {
 			return comment.Comment{}, fmt.Errorf("error fetching the comment by uuid: %w", err)
 		}
@@ -52,18 +57,22 @@ func (d *Database) GetComment(
 
 func (d *Database) PostComment(ctx context.Context, cmt comment.Comment) (comment.Comment, error) {
 	cmt.ID = uuid.NewV4().String()
+	cmt.CreatedAt = time.Now()
+	cmt.UpdatedAt = cmt.CreatedAt
 	postRow := CommentRow{
 		ID: cmt.ID,
-		Slug: sql.NullString{String: cmt.Slug, Valid: true},
-		Author: sql.NullString{String: cmt.Author, Valid: true},
-		Body: sql.NullString{String: cmt.Body, Valid: true},
+		UserID: sql.NullString{String: cmt.UserID, Valid: true},
+		PostID: sql.NullString{String: cmt.PostID, Valid: true},
+		Content: sql.NullString{String: cmt.Content, Valid: true},
+		CreatedAt: sql.NullTime{Time: cmt.CreatedAt, Valid: true},
+		UpdatedAt: sql.NullTime{Time: cmt.UpdatedAt, Valid: true},
 	}
 	rows, err := d.Client.NamedQueryContext(
 		ctx,
 		`INSERT INTO comments
-		(id, slug, author, body) 
+		(id, post_id, user_id, content, created_at, updated_at) 
 		VALUES
-		(:id, :slug, :author, :body)`,
+		(:id, :post_id, :user_id, :content, :created_at, :updated_at)`,
 		postRow,
 	)
 	if err != nil {
@@ -93,19 +102,21 @@ func (d *Database) UpdateComment(
 	id string, 
 	cmt comment.Comment,
 ) (comment.Comment, error) {
+	cmt.UpdatedAt = time.Now()
 	cmtRow := CommentRow{
 		ID: id,
-		Slug: sql.NullString{String: cmt.Slug, Valid: true},
-		Body: sql.NullString{String: cmt.Body, Valid: true},
-		Author: sql.NullString{String: cmt.Author, Valid: true},
+		PostID: sql.NullString{String: cmt.PostID, Valid: true},
+		UserID: sql.NullString{String: cmt.UserID, Valid: true},
+		Content: sql.NullString{String: cmt.Content, Valid: true},
+		CreatedAt: sql.NullTime{Time: cmt.CreatedAt, Valid: true},
+		UpdatedAt: sql.NullTime{Time: cmt.UpdatedAt, Valid: true},
 	}
 
 	rows, err := d.Client.NamedQueryContext(
 		ctx,
 		`UPDATE comments SET
-		slug = :slug,
-		author = :author,
-		body = :body
+		content = :content,
+		updated_at = :updated_at
 		WHERE id = :id`,
 		cmtRow,
 	)

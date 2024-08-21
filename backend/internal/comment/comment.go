@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 )
 
 var (
@@ -14,10 +15,12 @@ var (
 // Comment - a representation of the comment
 // structure for out service
 type Comment struct {
-	ID string
-	Slug string
-	Body string
-	Author string
+	ID string						`json:"id"`
+	PostID string				`json:"post_id" validate:"required"`
+	UserID string				`json:"user_id" validate:"required"`
+	Content string			`json:"content" validate:"required"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Store - this interface defines all the methods
