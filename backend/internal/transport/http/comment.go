@@ -19,16 +19,16 @@ type CommentService interface {
 }
 
 type PostCommentRequest struct {
-	Slug string `json:"slug" validate:"required"`
-	Author string `json:"author" validate:"required"`
-	Body string `json:"body" validate:"required"`
+	PostID string `json:"post_id" validate:"required"`
+	UserID string `json:"user_id" validate:"required"`
+	Content string `json:"content" validate:"required"`
 }
 
 func convertPostCommentRequestToComment(c PostCommentRequest) comment.Comment {
 	return comment.Comment{
-		Slug: c.Slug,
-		Author: c.Author,
-		Body: c.Body,
+		PostID: c.PostID,
+		UserID: c.UserID,
+		Content: c.Content,
 	}
 }
 
@@ -67,6 +67,7 @@ func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 
 	cmt, err := h.CommentService.GetComment(r.Context(), id)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -78,6 +79,7 @@ func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if id == "" {
@@ -103,6 +105,7 @@ func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if id == "" {

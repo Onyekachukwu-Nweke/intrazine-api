@@ -60,6 +60,9 @@ func (h *Handler) mapRoutes(){
 	h.Router.HandleFunc("/api/v1/posts/{id}", utils.JWTAuth(h.DeletePost)).Methods("DELETE")
 
 	// Comment Service Routes
+	h.Router.HandleFunc("/api/v1/posts/{id}/comments", utils.JWTAuth(h.PostComment)).Methods("POST")
+	h.Router.HandleFunc("/api/v1/posts/{id}/comments", utils.JWTAuth(h.PostComment)).Methods("GET")
+	h.Router.HandleFunc("/api/v1/comments/{id}", utils.JWTAuth(h.DeleteComment)).Methods("DELETE")
 }
 
 func (h *Handler) Serve() error {
