@@ -11,12 +11,12 @@ import (
 )
 
 type CommentRow struct {
-	ID string
-	PostID sql.NullString
-	UserID sql.NullString
-	Content sql.NullString
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	ID        string           `db:"id"`
+	PostID    sql.NullString   `db:"post_id"`
+	UserID    sql.NullString   `db:"user_id"`
+	Content   sql.NullString   `db:"content"`
+	CreatedAt sql.NullTime     `db:"created_at"`
+	UpdatedAt sql.NullTime     `db:"updated_at"`
 }
 
 func convertCommentRowToComment(c CommentRow) comment.Comment {
@@ -30,7 +30,7 @@ func convertCommentRowToComment(c CommentRow) comment.Comment {
 	}
 }
 
-func (d *Database) GetCommentByID(
+func (d *Database) GetComment(
 	ctx context.Context, 
 	uuid string,
 	) (comment.Comment, error) {

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
@@ -36,15 +37,25 @@ func convertPostRequestToPost(p PostRequest) post.Post {
 	}
 }
 
+// Create Post Function on the transport layer
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	userID, err  := utils.GetUserIDFromContext(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(Response{Message: "Not Authorized"})
+		return
+	}
+
 	var pst PostRequest
 	if err := json.NewDecoder(r.Body).Decode(&pst); err != nil {
 		return
 	}
 
+	pst.User_id = userID
+
 	validate := validator.New()
-	err := validate.Struct(pst)
+	err = validate.Struct(pst)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{Message: "Post not valid"})
@@ -95,12 +106,6 @@ func (h *Handler) GetPostByID(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
 		return
 	}
-	// if err != nil {
-	// 	// TODO: Add Logger
-	// 	log.Print(err)
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
 
 	if err := json.NewEncoder(w).Encode(pst); err != nil {
 		panic(err)

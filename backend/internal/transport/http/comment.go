@@ -3,13 +3,22 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/comment"
-	"github.com/gorilla/mux"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/mux"
 )
+
+// contextKey is an unexported type for context keys defined in this package.
+// This prevents collisions with keys defined in other packages.
+// type contextKey string
+
+// userContextKey is the key for user ID values in the context.
+// const userContextKey contextKey = "user_id"
 
 type CommentService interface {
 	PostComment(context.Context, comment.Comment) (comment.Comment, error)
@@ -33,13 +42,29 @@ func convertPostCommentRequestToComment(c PostCommentRequest) comment.Comment {
 }
 
 func (h *Handler) PostComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	postID := vars["id"]
+	userID, err := utils.GetUserIDFromContext(r) // This function should extract the user ID from the request context, set during authentication
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	var cmt PostCommentRequest
 	if err := json.NewDecoder(r.Body).Decode(&cmt); err != nil {
 		return
 	}
 
+	cmt.PostID = postID
+	cmt.UserID = userID
+
+	// Debugging
+	// fmt.Println(cmt)
+
 	validate := validator.New()
-	err := validate.Struct(cmt)
+	err = validate.Struct(cmt)
 	if err != nil {
 		http.Error(w, "not a valid comment", http.StatusBadRequest)
 		return
@@ -52,12 +77,14 @@ func (h *Handler) PostComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(postedCmt); err != nil {
 		panic(err)
 	}
 }
 
 func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	if id == "" {

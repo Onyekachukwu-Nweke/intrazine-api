@@ -51,17 +51,21 @@ func (h *Handler) mapRoutes(){
 	// User Service Routes
 	h.Router.HandleFunc("/api/v1/users/signup", (h.Signup)).Methods("POST")
 	h.Router.HandleFunc("/api/v1/users/login", (h.Login)).Methods("POST")
+	// logout, forgetpassword, resetpassword-token
+
+
+	// updatemypassword, updateMe, delete, Me
 
 	// Post Service Routes
 	h.Router.HandleFunc("/api/v1/posts", utils.JWTAuth(h.CreatePost)).Methods("POST")
 	h.Router.HandleFunc("/api/v1/posts/{id}", (h.GetPostByID)).Methods("GET")
 	h.Router.HandleFunc("/api/v1/posts", (h.GetAllPosts)).Methods("GET")
-	h.Router.HandleFunc("/api/v1/posts/{id}", utils.JWTAuth(h.UpdatePost)).Methods("PUT")
+	h.Router.HandleFunc("/api/v1/posts/{id}", utils.JWTAuth(h.UpdatePost)).Methods("PATCH")
 	h.Router.HandleFunc("/api/v1/posts/{id}", utils.JWTAuth(h.DeletePost)).Methods("DELETE")
 
 	// Comment Service Routes
 	h.Router.HandleFunc("/api/v1/posts/{id}/comments", utils.JWTAuth(h.PostComment)).Methods("POST")
-	h.Router.HandleFunc("/api/v1/posts/{id}/comments", utils.JWTAuth(h.PostComment)).Methods("GET")
+	h.Router.HandleFunc("/api/v1/posts/{id}/comments", utils.JWTAuth(h.GetComment)).Methods("GET")
 	h.Router.HandleFunc("/api/v1/comments/{id}", utils.JWTAuth(h.DeleteComment)).Methods("DELETE")
 }
 

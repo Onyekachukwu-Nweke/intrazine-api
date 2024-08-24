@@ -129,6 +129,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Create the JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
 		"username": user.Username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
