@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -13,12 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// contextKey is an unexported type for context keys defined in this package.
-// This prevents collisions with keys defined in other packages.
-// type contextKey string
-
-// userContextKey is the key for user ID values in the context.
-// const userContextKey contextKey = "user_id"
 
 type CommentService interface {
 	PostComment(context.Context, comment.Comment) (comment.Comment, error)

@@ -128,10 +128,20 @@ func (h *Handler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/* This endpoint needs a rework to avoid malicious
+ * person's from modifing ppl's posts on the platform
+ */
 func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
+	userID, err  := utils.GetUserIDFromContext(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(Response{Message: "Not Authorized"})
+		return
+	}
+
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{Message: "Missing Post ID"})
@@ -139,9 +149,11 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var pst post.Post
-	if err := json.NewDecoder(r.Body).Decode(&pst); err != nil {
+	if err = json.NewDecoder(r.Body).Decode(&pst); err != nil {
 		return
 	}
+
+	pst.User_id = userID
 
 	cmt, err := h.PostService.UpdatePost(r.Context(), id, pst)
 	if err != nil {
@@ -156,16 +168,25 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/* This endpoint needs a rework to avoid malicious
+ * person's from modifing ppl's posts on the platform
+ */
 func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+	userID, err  := utils.GetUserIDFromContext(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(Response{Message: "Not Authorized"})
+		return
+	}
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{Message: "Missing Post ID"})
 		return
 	}
 
-	err := h.PostService.DeletePost(r.Context(), id)
+	err = h.PostService.DeletePost(r.Context(), id)
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
