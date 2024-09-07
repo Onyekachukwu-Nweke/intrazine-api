@@ -30,6 +30,7 @@ type CommentStore interface {
 	PostComment(context.Context, Comment) (Comment, error)
 	DeleteComment(context.Context, string) error
 	UpdateComment(context.Context, string, Comment) (Comment, error)
+	GetOwnerIDByCommentID(ctx context.Context, commentID string) (string, error)
 }
 
 // Service - is the struct on which all our

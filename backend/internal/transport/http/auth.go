@@ -14,6 +14,10 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+type AuthorizationService interface {
+	IsUserAuthorized(ctx context.Context, userID, resourceID, resourceType string) (bool)
+}
+
 type UserService interface {
 	CreateUser(ctx context.Context, user user.User) (user.User, error)
 	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)

@@ -23,6 +23,7 @@ type PostStore interface {
 	GetAllPosts(context.Context) ([]Post, error)
 	UpdatePost(context.Context, string, Post) (Post, error)
 	DeletePost(context.Context, string) error
+	GetOwnerIDByPostID(ctx context.Context, postID string) (string, error)
 }
 
 type PostService struct {

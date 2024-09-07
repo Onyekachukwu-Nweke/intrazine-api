@@ -155,7 +155,15 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	pst.User_id = userID
 
-	cmt, err := h.PostService.UpdatePost(r.Context(), id, pst)
+	// Use the centralized authorization service
+	if !h.AuthorizationService.IsUserAuthorized(r.Context(), userID, id, "post") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(Response{Message: "Forbidden"})
+		return
+	}
+
+	updatedPost, err := h.PostService.UpdatePost(r.Context(), id, pst)
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -163,14 +171,12 @@ func (h *Handler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(cmt); err != nil {
+	if err := json.NewEncoder(w).Encode(updatedPost); err != nil {
 		panic(err)
 	}
 }
 
-/* This endpoint needs a rework to avoid malicious
- * person's from modifing ppl's posts on the platform
- */
+
 func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -183,6 +189,14 @@ func (h *Handler) DeletePost(w http.ResponseWriter, r *http.Request) {
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(Response{Message: "Missing Post ID"})
+		return
+	}
+
+	// Use the centralized authorization service
+	if !h.AuthorizationService.IsUserAuthorized(r.Context(), userID, id, "post") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(Response{Message: "Forbidden"})
 		return
 	}
 

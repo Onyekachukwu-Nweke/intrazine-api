@@ -102,6 +102,13 @@ func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
+	userID, err := utils.GetUserIDFromContext(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(Response{Message: "Not Authorized"})
+		return
+	}
+
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -112,14 +119,24 @@ func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmt, err := h.CommentService.UpdateComment(r.Context(), id, cmt)
+	cmt.UserID = userID
+
+	// Use the centralized authorization service
+	if !h.AuthorizationService.IsUserAuthorized(r.Context(), userID, id, "comment") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(Response{Message: "Forbidden"})
+		return
+	}
+
+	updatedCmt, err := h.CommentService.UpdateComment(r.Context(), id, cmt)
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(cmt); err != nil {
+	if err := json.NewEncoder(w).Encode(updatedCmt); err != nil {
 		panic(err)
 	}
 }
@@ -128,12 +145,27 @@ func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
+	userID, err := utils.GetUserIDFromContext(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(Response{Message: "Not Authorized"})
+		return
+	}
+
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err := h.CommentService.DeleteComment(r.Context(), id)
+	// Use the centralized authorization service
+	if !h.AuthorizationService.IsUserAuthorized(r.Context(), userID, id, "comment") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(Response{Message: "Forbidden"})
+		return
+	}
+
+	err = h.CommentService.DeleteComment(r.Context(), id)
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)

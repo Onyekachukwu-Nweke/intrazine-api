@@ -56,6 +56,12 @@ func (d *Database) CreatePost(ctx context.Context, pst post.Post) (post.Post, er
 	return pst, nil
 }
 
+func (d *Database) GetOwnerIDByPostID(ctx context.Context, postID string) (string, error) {
+	var userID string
+	err := d.Client.QueryRowContext(ctx, "SELECT user_id FROM posts WHERE id = $1", postID).Scan(&userID)
+	return userID, err
+}
+
 func (d *Database) GetPostByID(
 	ctx context.Context,
 	uuid string,

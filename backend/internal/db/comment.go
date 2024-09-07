@@ -55,6 +55,12 @@ func (d *Database) GetComment(
 		return convertCommentRowToComment(cmtRow), nil
 }
 
+func (d *Database) GetOwnerIDByCommentID(ctx context.Context, commentID string) (string, error) {
+	var userID string
+	err := d.Client.QueryRowContext(ctx, "SELECT user_id FROM comments WHERE id = $1", commentID).Scan(&userID)
+	return userID, err
+}
+
 func (d *Database) PostComment(ctx context.Context, cmt comment.Comment) (comment.Comment, error) {
 	cmt.ID = uuid.NewV4().String()
 	cmt.CreatedAt = time.Now()

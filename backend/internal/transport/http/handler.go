@@ -19,6 +19,7 @@ type Handler struct {
 	PostService PostService
 	UserService UserService
 	CommentService CommentService
+	AuthorizationService AuthorizationService
 	Server *http.Server
 }
 
@@ -26,11 +27,12 @@ type Response struct {
 	Message string
 }
 
-func NewHandler(postService PostService, userService UserService, commentService CommentService) *Handler  {
+func NewHandler(postService PostService, userService UserService, commentService CommentService, authService AuthorizationService) *Handler  {
 	h := &Handler{
 		PostService: postService,
 		UserService: userService,
 		CommentService: commentService,
+		AuthorizationService: authService, 
 	}
 	h.Router = mux.NewRouter()
 	h.mapRoutes()
