@@ -7,6 +7,7 @@ import TopAuthors from '../../components/topAuthors/topAuthors.components';
 import FeaturedIn from '../../components/clout/clout.components';
 import Testimonials from '../../components/testimonials/testimonials.components';
 import JoinUs from '../../components/joinus/joinus.component';
+import BlogPage from '../../components/blogPages/blogPages.component';
 
 const Home = () => {
   return (
@@ -20,6 +21,7 @@ const Home = () => {
       <FeaturedIn />
       <Testimonials />
       <JoinUs />
+      <BlogPage />
     </>
   )
 }

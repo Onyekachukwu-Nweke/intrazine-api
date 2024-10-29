@@ -4,6 +4,7 @@ import Navbar from './components/navbar/navbar.components';
 import Footer from './components/footer/footer.component';
 
 import Home from './routes/home/home.routes';
+import Blogs from './routes/blogs/blogs.routes';
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
       <Navbar />
         <Routes>
           <Route path='/' index element={<Home />} />
+          {/* <Route path='/blogs' element={<Blogs />} /> */}
         </Routes>
       <Footer />
     </BrowserRouter>
