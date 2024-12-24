@@ -12,20 +12,20 @@ import (
 )
 
 type PostRow struct {
-	ID string
-	User_id sql.NullString
-	Title sql.NullString
-	Content sql.NullString
+	ID         string
+	User_id    sql.NullString
+	Title      sql.NullString
+	Content    sql.NullString
 	Created_at sql.NullTime
 	Updated_at sql.NullTime
 }
 
 func convertPostRowToPost(p PostRow) post.Post {
 	return post.Post{
-		ID: p.ID,
-		Title: p.Title.String,
-		User_id: p.User_id.String, 
-		Content: p.Content.String,
+		ID:         p.ID,
+		Title:      p.Title.String,
+		User_id:    p.User_id.String,
+		Content:    p.Content.String,
 		Created_at: p.Created_at.Time,
 		Updated_at: p.Updated_at.Time,
 	}
@@ -35,11 +35,11 @@ func (d *Database) CreatePost(ctx context.Context, pst post.Post) (post.Post, er
 	pst.ID = uuid.NewV4().String()
 	pst.Created_at = time.Now()
 	pst.Updated_at = pst.Created_at
-	pstRow := PostRow {
-		ID: pst.ID,
-		User_id: sql.NullString{String: pst.User_id, Valid: true},
-		Title: sql.NullString{String: pst.Title, Valid: true},
-		Content: sql.NullString{String: pst.Content, Valid: true},
+	pstRow := PostRow{
+		ID:         pst.ID,
+		User_id:    sql.NullString{String: pst.User_id, Valid: true},
+		Title:      sql.NullString{String: pst.Title, Valid: true},
+		Content:    sql.NullString{String: pst.Content, Valid: true},
 		Created_at: sql.NullTime{Time: pst.Created_at, Valid: true},
 		Updated_at: sql.NullTime{Time: pst.Updated_at, Valid: true},
 	}
@@ -69,22 +69,22 @@ func (d *Database) GetPostByID(
 	var postRow PostRow
 
 	row := d.Client.QueryRowContext(
-		ctx, 
+		ctx,
 		`SELECT id, user_id, title, content, created_at, updated_at
 		FROM Posts
 		WHERE id = $1`,
 		uuid)
-	
-		err := row.Scan(&postRow.ID, &postRow.User_id,&postRow.Title, &postRow.Content, &postRow.Created_at, &postRow.Updated_at)
 
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return post.Post{}, fmt.Errorf("no post found with ID: %w", err) // Case II and III distinction
-		}
-			return post.Post{}, fmt.Errorf("error fetching post from id: %w", err)
-		}
+	err := row.Scan(&postRow.ID, &postRow.User_id, &postRow.Title, &postRow.Content, &postRow.Created_at, &postRow.Updated_at)
 
-		return convertPostRowToPost(postRow), nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return post.Post{}, fmt.Errorf("no post found with ID: %w", err) // Case II and III distinction
+		}
+		return post.Post{}, fmt.Errorf("error fetching post from ID: %w", err)
+	}
+
+	return convertPostRowToPost(postRow), nil
 }
 
 func (d *Database) GetAllPosts(ctx context.Context) ([]post.Post, error) {
@@ -103,7 +103,7 @@ func (d *Database) GetAllPosts(ctx context.Context) ([]post.Post, error) {
 		var p PostRow
 		err := rows.Scan(&p.ID, &p.User_id, &p.Title, &p.Content, &p.Created_at, &p.Updated_at)
 		if err != nil {
-				return nil, fmt.Errorf("error scanning post: %w", err)
+			return nil, fmt.Errorf("error scanning post: %w", err)
 		}
 		posts = append(posts, convertPostRowToPost(p))
 	}
@@ -118,10 +118,10 @@ func (d *Database) GetAllPosts(ctx context.Context) ([]post.Post, error) {
 func (d *Database) UpdatePost(ctx context.Context, id string, pst post.Post) (post.Post, error) {
 	pst.Updated_at = time.Now()
 	postRow := PostRow{
-		ID: id,
-		User_id: sql.NullString{String: pst.User_id, Valid: true},
-		Title: sql.NullString{String: pst.Title, Valid: true},
-		Content: sql.NullString{String: pst.Content, Valid: true},
+		ID:         id,
+		User_id:    sql.NullString{String: pst.User_id, Valid: true},
+		Title:      sql.NullString{String: pst.Title, Valid: true},
+		Content:    sql.NullString{String: pst.Content, Valid: true},
 		Created_at: sql.NullTime{Time: pst.Created_at, Valid: true},
 		Updated_at: sql.NullTime{Time: pst.Updated_at, Valid: true},
 	}
