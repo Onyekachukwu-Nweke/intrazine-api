@@ -9,7 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-
 type Database struct {
 	Client *sqlx.DB
 }

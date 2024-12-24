@@ -6,18 +6,18 @@ import (
 
 	// "github.com/joho/godotenv"
 
+	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/auth"
+	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/comment"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/comment"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/auth"
 	transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
+	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
 )
 
 func Run() error {
 	fmt.Println("Starting Our Backend API")
 
-	db, err  := db.NewDatabase()
+	db, err := db.NewDatabase()
 	if err != nil {
 		fmt.Println("failed to connect to DB")
 		return err
@@ -29,12 +29,12 @@ func Run() error {
 
 	fmt.Println("successfully connected and pinged database")
 
-	userService := user.NewUserService(db)
+	//userService := user.NewUserService(db)
 	postService := post.NewPostService(db)
-	commentService := comment.NewCommentService(db)
-	authService := auth.NewAuthorizationService(postService.PostStore, commentService.CommentStore, userService.UserStore)
+	//commentService := comment.NewCommentService(db)
+	//authService := auth.NewAuthorizationService(postService.PostStore, commentService.CommentStore, userService.UserStore)
 
-	httpHandler := transportHttp.NewHandler(postService, userService, commentService, authService)
+	httpHandler := transportHttp.NewHandler(postService)
 	if err := httpHandler.Serve(); err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func main() {
 	// if err != nil {
 	// 		log.Fatalf("Error loading .env file")
 	// }
-	
+
 	if err := Run(); err != nil {
 		fmt.Println(err)
 	}
