@@ -18,17 +18,19 @@ func NewPostHandler(service interfaces.PostStore) *PostHandler {
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("user_id").(string) // Retrieve user ID from context
 	var post models.Post
 	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
 
+	post.UserId = userID
 	validate := validator.New()
 	err := validate.Struct(post)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		//json.NewEncoder(w).Encode(Response{Message: "Post not valid"})
+		http.Error(w, "Invalid input", http.StatusBadRequest)
 		// TODO: Add Logger
 		log.Print(err)
 		return

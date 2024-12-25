@@ -17,8 +17,8 @@ type contextKey string
 // userContextKey is the key for user ID values in the context.
 const userContextKey contextKey = "user_id"
 
-func JWTAuth(original func (w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-	
+func JWTAuth(original func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header["Authorization"]
 		if authHeader == nil {
@@ -33,8 +33,8 @@ func JWTAuth(original func (w http.ResponseWriter, r *http.Request)) func(w http
 			return
 		}
 
-		userID, err := validateToken(authHeaderParts[1]);
-		fmt.Println(userID) 
+		userID, err := validateToken(authHeaderParts[1])
+		fmt.Println(userID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
@@ -64,24 +64,14 @@ func validateToken(accessToken string) (string, error) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			fmt.Println(claims)
-			userID, ok := claims["user_id"].(string)
-			fmt.Println(userID) 
-			if !ok {
-					return "", errors.New("invalid token claims")
-			}
-			return userID, nil
+		fmt.Println(claims)
+		userID, ok := claims["user_id"].(string)
+		fmt.Println(userID)
+		if !ok {
+			return "", errors.New("invalid token claims")
+		}
+		return userID, nil
 	}
 
 	return "", errors.New("invalid token")
-}
-
-func GetUserIDFromContext(r *http.Request) (string, error) {
-	fmt.Println(r.Context())
-	userID := r.Context().Value(userContextKey)
-	fmt.Println(userID) // debugging
-	if userID == nil {
-			return "", fmt.Errorf("no user id present in the request context")
-	}
-	return userID.(string), nil
 }
