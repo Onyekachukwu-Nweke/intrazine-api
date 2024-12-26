@@ -2,6 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/repositories"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/services"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/routes"
+	"github.com/gorilla/mux"
+
 	// "log"
 
 	// "github.com/joho/godotenv"
@@ -9,35 +15,42 @@ import (
 	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/auth"
 	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/comment"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
-	transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
+	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
+	//transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
 	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
 )
 
 func Run() error {
 	fmt.Println("Starting Our Backend API")
 
-	db, err := db.NewDatabase()
+	database, err := db.NewDatabase()
 	if err != nil {
 		fmt.Println("failed to connect to DB")
 		return err
 	}
-	if err := db.MigrateDB(); err != nil {
+	if err := database.MigrateDB(); err != nil {
 		fmt.Println("failed to migrate to DB")
 		fmt.Println(err)
 	}
 
 	fmt.Println("successfully connected and pinged database")
 
-	//userService := user.NewUserService(db)
-	postService := post.NewPostService(db)
-	//commentService := comment.NewCommentService(db)
-	//authService := auth.NewAuthorizationService(postService.PostStore, commentService.CommentStore, userService.UserStore)
+	// Initialize repositories
+	postRepo := repositories.NewPostRepository(database.Client)
 
-	httpHandler := transportHttp.NewHandler(postService)
-	if err := httpHandler.Serve(); err != nil {
-		return err
-	}
+	// Initialize services
+	postService := services.NewPostService(postRepo)
+
+	// Initialize handlers
+	postHandler := handlers.NewPostHandler(postService)
+
+	// Setup router
+	r := mux.NewRouter()
+	routes.RegisterRoutes(r, postHandler)
+
+	//if err := httpHandler.Serve(); err != nil {
+	//	return err
+	//}
 
 	return nil
 }

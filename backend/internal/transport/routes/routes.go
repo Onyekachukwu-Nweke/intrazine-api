@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/handlers"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/pkg/middleware"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/middleware"
 	"github.com/gorilla/mux"
 )
 

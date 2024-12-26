@@ -10,10 +10,10 @@ import (
 )
 
 type PostHandler struct {
-	Service interfaces.PostStore
+	Service interfaces.PostService
 }
 
-func NewPostHandler(service interfaces.PostStore) *PostHandler {
+func NewPostHandler(service interfaces.PostService) *PostHandler {
 	return &PostHandler{Service: service}
 }
 

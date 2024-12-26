@@ -1,21 +1,13 @@
-package utils
+package middleware
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt"
 	"net/http"
 	"strings"
-
-	"github.com/golang-jwt/jwt"
 )
-
-// contextKey is an unexported type for context keys defined in this package.
-// This prevents collisions with keys defined in other packages.
-type contextKey string
-
-// userContextKey is the key for user ID values in the context.
-const userContextKey contextKey = "user_id"
 
 func JWTAuth(original func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 
@@ -41,7 +33,7 @@ func JWTAuth(original func(w http.ResponseWriter, r *http.Request)) func(w http.
 		}
 
 		// Set user_id in the context
-		ctx := context.WithValue(r.Context(), userContextKey, userID)
+		ctx := context.WithValue(r.Context(), "user_id", userID)
 		r = r.WithContext(ctx)
 
 		// Call the original handler

@@ -15,7 +15,7 @@ type PostRepository struct {
 	DB *sqlx.DB
 }
 
-func NewPostRepository(db *sqlx.DB) interfaces.PostStore {
+func NewPostRepository(db *sqlx.DB) interfaces.PostRepo {
 	return &PostRepository{DB: db}
 }
 
