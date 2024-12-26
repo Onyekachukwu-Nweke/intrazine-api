@@ -54,7 +54,3 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	log.Printf("Post successfully created: %+v", createdPost)
 	c.JSON(http.StatusCreated, gin.H{"message": "Post created successfully", "data": createdPost})
 }
-
-func (h *PostHandler) GetAllPosts(c *gin.Context) {
-
-}
