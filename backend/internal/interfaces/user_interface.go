@@ -15,5 +15,5 @@ type UserRepo interface {
 }
 
 type UserService interface {
-	CreateUser(ctx context.Context, user models.User) (models.User, error)
+	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)
 }

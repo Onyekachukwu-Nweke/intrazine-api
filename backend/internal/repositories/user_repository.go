@@ -55,10 +55,10 @@ func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (models
 	var user models.User
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (r *UserRepository) UpdateUser(ctx context.Context, user models.User) (models.User, error) {
@@ -100,4 +100,20 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, username string)
 	}
 
 	return &user, nil
+}
+
+func (r *UserRepository) CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error) {
+	var userCount int
+	err = r.DB.QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2`, username, email).Scan(&userCount)
+	if err != nil {
+		return false, "", err
+	}
+	if userCount > 0 {
+		// Check which field is duplicated
+		if err := r.DB.QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE username = $1`, username).Scan(&userCount); err == nil && userCount > 0 {
+			return true, "username", nil
+		}
+		return true, "email", nil
+	}
+	return false, "", nil
 }

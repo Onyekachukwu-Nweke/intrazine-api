@@ -15,7 +15,7 @@ import (
 )
 
 type AuthorizationService interface {
-	IsUserAuthorized(ctx context.Context, userID, resourceID, resourceType string) (bool)
+	IsUserAuthorized(ctx context.Context, userID, resourceID, resourceType string) bool
 }
 
 type UserService interface {
@@ -76,18 +76,6 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, field, err := h.UserService.CheckUserExists(r.Context(), usrReq.Username, usrReq.Email)
-	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(Response{Message: "Internal server error"})
-	}
-	if exists {
-		msg := fmt.Sprintf("%s already exists", field)
-		json.NewEncoder(w).Encode(Response{Message: msg})
-		return
-	}
-
 	// Proceed to create user if validations pass
 	passwordHash, err := utils.HashPassword(usrReq.Password)
 	if err != nil {
@@ -133,7 +121,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Create the JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
+		"user_id":  user.ID,
 		"username": user.Username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
