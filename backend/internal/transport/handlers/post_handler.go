@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
@@ -17,38 +17,44 @@ func NewPostHandler(service interfaces.PostService) *PostHandler {
 	return &PostHandler{Service: service}
 }
 
-func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(string) // Retrieve user ID from context
+func (h *PostHandler) CreatePost(c *gin.Context) {
+	// Extract user ID from the context (set by JWT middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Parse request body into the `models.Post` struct
 	var post models.Post
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&post); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "details": err.Error()})
 		return
 	}
 
-	post.UserId = userID
+	// Set the user ID on the post
+	post.UserId = userID.(string)
+
+	// Validate the input
 	validate := validator.New()
-	err := validate.Struct(post)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		// TODO: Add Logger
-		log.Print(err)
+	if err := validate.Struct(post); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation failed", "details": err.Error()})
 		return
 	}
 
-	createdPost, err := h.Service.CreatePost(r.Context(), post)
+	// Call the service layer to create the post
+	createdPost, err := h.Service.CreatePost(c.Request.Context(), post)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		//json.NewEncoder(w).Encode(Response{Message: "Post could not created"})
-		// TODO: Add Logger
-		log.Print(err)
+		log.Printf("Failed to create post: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create post"})
 		return
 	}
 
-	// TODO: Add Logger
-	log.Print("Post Successfully Created")
+	// Log success and respond
+	log.Printf("Post successfully created: %+v", createdPost)
+	c.JSON(http.StatusCreated, gin.H{"message": "Post created successfully", "data": createdPost})
+}
 
-	if err := json.NewEncoder(w).Encode(createdPost); err != nil {
-		panic(err)
-	}
+func (h *PostHandler) GetAllPosts(c *gin.Context) {
+
 }

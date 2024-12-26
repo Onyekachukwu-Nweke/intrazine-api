@@ -12,6 +12,11 @@ func RegisterRoutes(router *gin.Engine, postHandler *handlers.PostHandler) {
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Pong, API is up"})
 	})
+
+	api := router.Group("/api/v1")
+	{
+		RegisterPostRoutes(api, postHandler)
+	}
 	// Apply JSON middleware globally
 	//router.Use(middleware.JSONMiddleware)
 	// Post routes
