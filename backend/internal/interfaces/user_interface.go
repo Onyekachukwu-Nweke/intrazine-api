@@ -12,8 +12,8 @@ type UserRepo interface {
 	UpdateUser(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
 	GetUserByUsername(ctx context.Context, username string) (models.User, error)
+	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)
 }
 
 type UserService interface {
-	CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error)
 }

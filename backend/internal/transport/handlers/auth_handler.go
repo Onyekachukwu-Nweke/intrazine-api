@@ -3,6 +3,8 @@ package handlers
 import (
 	"fmt"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -61,4 +63,25 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": msg})
 	}
 
+	passwordHash, err := utils.HashPassword(usrReq.Password)
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	user := models.User{
+		Username:     body.Username,
+		Email:        body.Email,
+		PasswordHash: passwordHash,
+	}
+
+	createdUser, err := h.Service.Signup(c.Request.Context(), user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		log.Print(err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"user": createdUser})
 }

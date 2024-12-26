@@ -24,7 +24,7 @@ func (s *AuthService) Signup(ctx context.Context, user models.User) (models.User
 	return insertedUser, nil
 }
 
-func (s *UserService) Login(ctx context.Context, username, password string) (models.User, error) {
+func (s *AuthService) Login(ctx context.Context, username, password string) (models.User, error) {
 	user, err := s.Repo.GetUserByUsername(ctx, username)
 	if err != nil {
 		fmt.Println(err)
@@ -39,4 +39,13 @@ func (s *UserService) Login(ctx context.Context, username, password string) (mod
 	}
 
 	return user, nil
+}
+
+func (s *AuthService) CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error) {
+	exists, field, err = s.Repo.CheckUserExists(ctx, username, email)
+	if err != nil {
+		fmt.Println(err)
+		return false, "", err
+	}
+	return exists, field, nil
 }
