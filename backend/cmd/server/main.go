@@ -4,20 +4,12 @@ import (
 	"fmt"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/repositories"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/services"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/routes"
-	"github.com/gorilla/mux"
-
-	// "log"
-
+	"github.com/gin-gonic/gin"
 	// "github.com/joho/godotenv"
-
-	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/auth"
-	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/comment"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
-	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/post"
-	//transportHttp "github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/http"
-	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/user"
 )
 
 func Run() error {
@@ -45,12 +37,14 @@ func Run() error {
 	postHandler := handlers.NewPostHandler(postService)
 
 	// Setup router
-	r := mux.NewRouter()
-	routes.RegisterRoutes(r, postHandler)
+	server := transport.NewServer(func(router *gin.Engine) {
+		routes.RegisterRoutes(router, postHandler)
+	})
 
-	//if err := httpHandler.Serve(); err != nil {
-	//	return err
-	//}
+	// Start the server
+	if err := server.Serve(); err != nil {
+		panic(err)
+	}
 
 	return nil
 }
