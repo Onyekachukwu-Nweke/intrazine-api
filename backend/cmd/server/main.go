@@ -29,16 +29,19 @@ func Run() error {
 
 	// Initialize repositories
 	postRepo := repositories.NewPostRepository(database.Client)
+	userRepo := repositories.NewUserRepository(database.Client)
 
 	// Initialize services
 	postService := services.NewPostService(postRepo)
+	authService := services.NewAuthService(userRepo)
 
 	// Initialize handlers
 	postHandler := handlers.NewPostHandler(postService)
+	authHandler := handlers.NewAuthHandler(authService)
 
 	// Setup router
 	server := transport.NewServer(func(router *gin.Engine) {
-		routes.RegisterRoutes(router, postHandler)
+		routes.RegisterRoutes(router, postHandler, authHandler)
 	})
 
 	// Start the server

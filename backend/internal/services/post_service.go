@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/repositories"
@@ -24,15 +23,15 @@ func (s *PostService) CreatePost(ctx context.Context, post models.Post) (models.
 	return insertedPost, nil
 }
 
-func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
-	fmt.Println("Retrieving All Posts")
-	post, err := s.Repo.GetAllPosts(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error getting all posts: %w", err)
-	}
-
-	return post, nil
-}
+//func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
+//	fmt.Println("Retrieving All Posts")
+//	post, err := s.Repo.GetAllPosts(ctx)
+//	if err != nil {
+//		return nil, fmt.Errorf("error getting all posts: %w", err)
+//	}
+//
+//	return post, nil
+//}
 
 //func (s *PostService) GetAllPosts(ctx context.Context) ([]Post, error) {
 //	fmt.Println("Retrieving All Posts")

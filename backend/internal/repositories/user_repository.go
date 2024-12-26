@@ -35,17 +35,17 @@ func (r *UserRepository) CreateUser(ctx context.Context, user models.User) (mode
 	return user, nil
 }
 
-func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 	query := `SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE email = $1`
 	row := r.DB.QueryRowContext(ctx, query, email)
 
 	var user models.User
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (models.User, error) {
@@ -83,7 +83,7 @@ func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
 	return err
 }
 
-func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
+func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	var user models.User
 
 	row := r.DB.QueryRowContext(
@@ -94,12 +94,12 @@ func (r *UserRepository) GetUserByUsername(ctx context.Context, username string)
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return &models.User{}, fmt.Errorf("no user found with username: %w", err)
+			return models.User{}, fmt.Errorf("no user found with username: %w", err)
 		}
-		return &models.User{}, fmt.Errorf("error fetching user from username: %w", err)
+		return models.User{}, fmt.Errorf("error fetching user from username: %w", err)
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (r *UserRepository) CheckUserExists(ctx context.Context, username, email string) (exists bool, field string, err error) {
