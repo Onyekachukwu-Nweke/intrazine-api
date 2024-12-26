@@ -2,8 +2,9 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/satori/go.uuid"
@@ -14,7 +15,7 @@ type UserRepository struct {
 	DB *sqlx.DB
 }
 
-func NewUserRepository(db *sqlx.DB) interfaces.UserRepo {
+func NewUserRepository(db *sqlx.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
@@ -47,7 +48,7 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	return &user, nil
 }
 
-func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
+func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (models.User, error) {
 	query := `SELECT id, username, email, created_at, updated_at FROM users WHERE id = $1`
 	row := r.DB.QueryRowContext(ctx, query, userID)
 
@@ -82,21 +83,21 @@ func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
 	return err
 }
 
-//func (d *Database) GetUserByUsername(ctx context.Context, username string) (user.User, error) {
-//	var usrRow UserRow
-//
-//	row := d.Client.QueryRowContext(
-//		ctx,
-//		`SELECT id, username, email, password_hash FROM users WHERE username = $1`,
-//		username)
-//
-//	err := row.Scan(&usrRow.ID, &usrRow.Username, &usrRow.Email, &usrRow.PasswordHash)
-//	if err != nil {
-//		if err == sql.ErrNoRows {
-//			return user.User{}, fmt.Errorf("no user found with username: %w", err)
-//		}
-//		return user.User{}, fmt.Errorf("error fetching user from username: %w", err)
-//	}
-//
-//	return convertUserRowToUser(usrRow), nil
-//}
+func (r *UserRepository) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
+	var user models.User
+
+	row := r.DB.QueryRowContext(
+		ctx,
+		`SELECT id, username, email, password_hash FROM users WHERE username = $1`,
+		username)
+
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &models.User{}, fmt.Errorf("no user found with username: %w", err)
+		}
+		return &models.User{}, fmt.Errorf("error fetching user from username: %w", err)
+	}
+
+	return &user, nil
+}

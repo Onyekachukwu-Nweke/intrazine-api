@@ -12,7 +12,7 @@ type PostService struct {
 	Repo interfaces.PostRepo
 }
 
-func NewPostService(repo interfaces.PostRepo) interfaces.PostService {
+func NewPostService(repo interfaces.PostRepo) *PostService {
 	return &PostService{Repo: repo}
 }
 
