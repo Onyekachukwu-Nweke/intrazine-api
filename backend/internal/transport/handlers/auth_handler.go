@@ -63,7 +63,7 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": msg})
 	}
 
-	passwordHash, err := utils.HashPassword(usrReq.Password)
+	passwordHash, err := utils.HashPassword(body.Password)
 	if err != nil {
 		log.Print(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})

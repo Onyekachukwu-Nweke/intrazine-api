@@ -7,7 +7,7 @@ import (
 )
 
 // RegisterRoutes sets up all routes for the application.
-func RegisterRoutes(router *gin.Engine, postHandler *handlers.PostHandler) {
+func RegisterRoutes(router *gin.Engine, postHandler *handlers.PostHandler, authHandler *handlers.AuthHandler) {
 	// Health check
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Pong, API is up"})
@@ -16,6 +16,7 @@ func RegisterRoutes(router *gin.Engine, postHandler *handlers.PostHandler) {
 	api := router.Group("/api/v1")
 	{
 		RegisterPostRoutes(api, postHandler)
+		RegisterAuthRoutes(api, authHandler)
 	}
 	// Apply JSON middleware globally
 	//router.Use(middleware.JSONMiddleware)
