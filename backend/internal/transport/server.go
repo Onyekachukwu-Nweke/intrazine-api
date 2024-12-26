@@ -2,6 +2,7 @@ package transport
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -35,7 +36,7 @@ func NewServer(handlerMappings func(router *mux.Router)) *Server {
 
 func (s *Server) Serve() error {
 	go func() {
-		if err := s.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := s.Server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Could not listen on %s: %v\n", s.Server.Addr, err)
 		}
 	}()
