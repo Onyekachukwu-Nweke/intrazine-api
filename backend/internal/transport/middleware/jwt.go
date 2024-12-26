@@ -1,45 +1,70 @@
 package middleware
 
 import (
-	"context"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"net/http"
 	"strings"
 )
 
-func JWTAuth(original func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header["Authorization"]
-		if authHeader == nil {
-			http.Error(w, "Not authorized", http.StatusUnauthorized)
+func JWTAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+		if token == "" || !strings.HasPrefix(token, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
 			return
 		}
 
-		// Bearer: token-string
-		authHeaderParts := strings.Split(authHeader[0], " ")
-		if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
-			http.Error(w, "Not authorized", http.StatusUnauthorized)
-			return
-		}
+		// Validate token (you can add your token validation logic here)
+		token = strings.TrimPrefix(token, "Bearer ")
 
-		userID, err := validateToken(authHeaderParts[1])
+		userID, err := validateToken(token)
 		fmt.Println(userID)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
 
-		// Set user_id in the context
-		ctx := context.WithValue(r.Context(), "user_id", userID)
-		r = r.WithContext(ctx)
-
-		// Call the original handler
-		original(w, r)
+		// If valid, proceed to the next handler
+		c.Set("user_id", userID) // Mock user ID for now
+		c.Next()
 	}
 }
+
+//func JWTAuth(original func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+//
+//	return func(w http.ResponseWriter, r *http.Request) {
+//		authHeader := r.Header["Authorization"]
+//		if authHeader == nil {
+//			http.Error(w, "Not authorized", http.StatusUnauthorized)
+//			return
+//		}
+//
+//		// Bearer: token-string
+//		authHeaderParts := strings.Split(authHeader[0], " ")
+//		if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+//			http.Error(w, "Not authorized", http.StatusUnauthorized)
+//			return
+//		}
+//
+//		userID, err := validateToken(authHeaderParts[1])
+//		fmt.Println(userID)
+//		if err != nil {
+//			http.Error(w, err.Error(), http.StatusUnauthorized)
+//			return
+//		}
+//
+//		// Set user_id in the context
+//		ctx := context.WithValue(r.Context(), "user_id", userID)
+//		r = r.WithContext(ctx)
+//
+//		// Call the original handler
+//		original(w, r)
+//	}
+//}
 
 func validateToken(accessToken string) (string, error) {
 	var mySigningKey = []byte("missionimpossible")

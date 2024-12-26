@@ -9,19 +9,19 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	Router *mux.Router
+	Engine *gin.Engine
 	Server *http.Server
 }
 
-func NewServer(handlerMappings func(router *mux.Router)) *Server {
-	router := mux.NewRouter()
+func NewServer(routerMappings func(router *gin.Engine)) *Server {
+	router := gin.Default()
 
 	// Map routes to handlers
-	handlerMappings(router)
+	routerMappings(router)
 
 	server := &http.Server{
 		Addr:    "0.0.0.0:8080",
@@ -29,7 +29,7 @@ func NewServer(handlerMappings func(router *mux.Router)) *Server {
 	}
 
 	return &Server{
-		Router: router,
+		Engine: router,
 		Server: server,
 	}
 }
