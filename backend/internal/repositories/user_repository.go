@@ -60,15 +60,25 @@ func (r *UserRepository) GetUserByID(ctx context.Context, userID string) (*model
 	return &user, nil
 }
 
-func (r *UserRepository) UpdateUser(user models.User) error {
-	query := `UPDATE users SET username = $1, email = $2, updated_at = NOW() WHERE id = $3`
-	_, err := r.DB.Exec(query, user.Username, user.Email, user.ID)
-	return err
+func (r *UserRepository) UpdateUser(ctx context.Context, user models.User) (models.User, error) {
+	query := `UPDATE users SET username = :username, email = :email, updated_at = NOW() WHERE id = :id`
+	rows, err := r.DB.NamedQueryContext(ctx, query, user)
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	if err := rows.Close(); err != nil {
+		return models.User{}, fmt.Errorf("failed to close rows: %w", err)
+	}
+	return user, nil
 }
 
-func (r *UserRepository) DeleteUser(userID string) error {
+func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
 	query := `DELETE FROM users WHERE id = $1`
-	_, err := r.DB.Exec(query, userID)
+	_, err := r.DB.ExecContext(ctx, query, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user from database: %w", err)
+	}
 	return err
 }
 
