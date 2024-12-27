@@ -6,9 +6,11 @@ import (
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 type AuthHandler struct {
@@ -24,6 +26,11 @@ type UserSignupRequest struct {
 	Email           string `json:"email" valid:"email,required"`
 	Password        string `json:"password" valid:"required"`
 	PasswordConfirm string `json:"password_confirm" valid:"required"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username" valid:"required"`
+	Password string `json:"password" valid:"required"`
 }
 
 // regex for validating an email
@@ -85,4 +92,37 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"user": createdUser})
+}
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	var body LoginRequest
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	user, err := h.Service.Login(c.Request.Context(), body.Username, body.Password)
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password not correct"})
+		return
+	}
+
+	// Create the JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id":  user.ID,
+		"username": user.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte("missionimpossible"))
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+
 }
