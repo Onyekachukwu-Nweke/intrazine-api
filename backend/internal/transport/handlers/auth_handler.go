@@ -51,16 +51,17 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 
 	if !isEmailValid(body.Email) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email"})
+		return
 	}
 
 	exists, field, err := h.Service.CheckUserExists(c.Request.Context(), body.Username, body.Email)
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 	}
 	if exists {
 		msg := fmt.Sprintf("%s already exists", field)
 		c.JSON(http.StatusConflict, gin.H{"error": msg})
+		return
 	}
 
 	passwordHash, err := utils.HashPassword(body.Password)
