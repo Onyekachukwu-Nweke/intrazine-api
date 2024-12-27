@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
@@ -49,3 +50,38 @@ func (s *AuthService) CheckUserExists(ctx context.Context, username, email strin
 	}
 	return exists, field, nil
 }
+
+func (s *AuthService) ForgotPassword(ctx context.Context, username string) (string, error) {
+	user, err := s.Repo.GetUserByUsername(ctx, username)
+	if err != nil {
+		return "", errors.New("username not registered")
+	}
+
+	resetToken, err := utils.GenerateResetToken(user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return resetToken, nil
+}
+
+//func (a *AuthorizationService) IsUserAuthorized(ctx context.Context, userID, resourceID, resourceType string) bool {
+//	var ownerID string
+//	var err error
+//
+//	switch resourceType {
+//	case "post":
+//		ownerID, err = a.postStore.GetOwnerIDByPostID(ctx, resourceID)
+//	case "comment":
+//		ownerID, err = a.commentStore.GetOwnerIDByCommentID(ctx, resourceID)
+//	default:
+//		return false
+//	}
+//
+//	if err != nil {
+//		log.Printf("Authorization check failed: %v", err)
+//		return false
+//	}
+//
+//	return ownerID == userID
+//}

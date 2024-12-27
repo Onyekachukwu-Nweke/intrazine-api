@@ -15,6 +15,3 @@ func CheckPasswordHash(hash string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
-
-// GenerateJWT generates a JWT token for authenticated users
-// Implementation of JWT Generation

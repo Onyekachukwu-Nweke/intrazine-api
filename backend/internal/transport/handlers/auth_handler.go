@@ -33,6 +33,10 @@ type LoginRequest struct {
 	Password string `json:"password" valid:"required"`
 }
 
+type ForgotPasswordRequest struct {
+	Username string `json:"username" valid:"required"`
+}
+
 // regex for validating an email
 var emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 
@@ -125,4 +129,20 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 
+}
+
+func (h *AuthHandler) ForgotPassword(c *gin.Context) {
+	var body ForgotPasswordRequest
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username"})
+	}
+
+	token, err := h.Service.ForgotPassword(c.Request.Context(), body.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password reset token sent", "token": token})
 }
