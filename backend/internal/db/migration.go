@@ -1,5 +1,8 @@
 package db
 
+import "os"
+import "path/filepath"
+
 import (
 	"errors"
 	"fmt"
@@ -11,17 +14,18 @@ import (
 	_ "github.com/lib/pq"
 )
 
-
-
 func (d *Database) MigrateDB() error {
 	fmt.Println("migrating our database")
+
+	execPath, _ := os.Executable()
+	migrationPath := filepath.Join(filepath.Dir(execPath), "migrations")
 
 	driver, err := postgres.WithInstance(d.Client.DB, &postgres.Config{})
 	if err != nil {
 		return fmt.Errorf("could not create postgres driver: %w", err)
 	}
-	m, err :=  migrate.NewWithDatabaseInstance(
-		"file:///migrations",
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://"+migrationPath,
 		"postgres",
 		driver,
 	)
@@ -30,7 +34,7 @@ func (d *Database) MigrateDB() error {
 		return err
 	}
 
-	if err := m.Up(); err !=  nil {
+	if err := m.Up(); err != nil {
 		if !errors.Is(err, migrate.ErrNoChange) {
 			return fmt.Errorf("could not run up migrations: %w", err)
 		}
@@ -39,7 +43,7 @@ func (d *Database) MigrateDB() error {
 	// Force migration version if dirty
 	err = m.Force(1) // Replace with the version you need to force
 	if err != nil {
-			log.Fatalf("Could not force migration version: %v", err)
+		log.Fatalf("Could not force migration version: %v", err)
 	}
 
 	fmt.Println("successfully migrated the database")

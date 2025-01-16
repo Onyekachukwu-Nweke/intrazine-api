@@ -140,7 +140,8 @@ func (h *AuthHandler) ForgotPassword(c *gin.Context) {
 
 	token, err := h.Service.ForgotPassword(c.Request.Context(), body.Username)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset token"})
+		log.Print(err)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 

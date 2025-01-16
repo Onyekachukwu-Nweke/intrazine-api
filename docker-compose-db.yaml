@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:12.2-alpine
+    container_name: "piko-blog-db"
+    ports:
+      - "5440:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - piko
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9000:8080
+    networks:
+      - piko
+
+volumes:
+  postgres_data:
+
+networks:
+  piko:
+    driver: bridge

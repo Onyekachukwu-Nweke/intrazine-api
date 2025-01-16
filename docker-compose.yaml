@@ -1,24 +1,4 @@
 services:
-  db:
-    image: postgres:12.2-alpine
-    container_name: "piko-blog-db"
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - piko
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   api:
     build:
       context: ./backend/
@@ -34,9 +14,9 @@ services:
       SSL_MODE: "disable"
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
+#    depends_on:
+#      db:
+#        condition: service_healthy
     networks:
       - piko
 

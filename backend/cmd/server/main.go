@@ -2,20 +2,23 @@ package main
 
 import (
 	"fmt"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/config"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/repositories"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/services"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/routes"
 	"github.com/gin-gonic/gin"
+	"log"
+
 	// "github.com/joho/godotenv"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
 )
 
-func Run() error {
+func Run(cfg *config.Config) error {
 	fmt.Println("Starting Our Backend API")
 
-	database, err := db.NewDatabase()
+	database, err := db.NewDatabase(cfg)
 	if err != nil {
 		fmt.Println("failed to connect to DB")
 		return err
@@ -53,15 +56,15 @@ func Run() error {
 }
 
 func main() {
-	fmt.Println("Piko Blog API")
+	fmt.Println("Intrazine API")
 
-	// Load the .env file
-	// err := godotenv.Load()
-	// if err != nil {
-	// 		log.Fatalf("Error loading .env file")
-	// }
+	// Load the config
+	cfg, err := config.LoadConfig(".env")
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-	if err := Run(); err != nil {
+	if err := Run(cfg); err != nil {
 		fmt.Println(err)
 	}
 }

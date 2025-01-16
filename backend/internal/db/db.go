@@ -3,8 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"os"
-
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -13,16 +12,15 @@ type Database struct {
 	Client *sqlx.DB
 }
 
-func NewDatabase() (*Database, error) {
+func NewDatabase(cfg *config.Config) (*Database, error) {
 	connectionString := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_TABLE"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("SSL_MODE"),
-	)
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBUser,
+		cfg.DBName,
+		cfg.DBPassword,
+		cfg.DBSSLMode)
 
 	fmt.Println(connectionString)
 

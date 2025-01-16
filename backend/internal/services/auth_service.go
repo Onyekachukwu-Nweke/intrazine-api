@@ -7,6 +7,7 @@ import (
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/utils"
+	"log"
 )
 
 type AuthService struct {
@@ -54,7 +55,8 @@ func (s *AuthService) CheckUserExists(ctx context.Context, username, email strin
 func (s *AuthService) ForgotPassword(ctx context.Context, username string) (string, error) {
 	user, err := s.Repo.GetUserByUsername(ctx, username)
 	if err != nil {
-		return "", errors.New("username not registered")
+		log.Print(err)
+		return "", errors.New("username not found")
 	}
 
 	resetToken, err := utils.GenerateResetToken(user.ID)

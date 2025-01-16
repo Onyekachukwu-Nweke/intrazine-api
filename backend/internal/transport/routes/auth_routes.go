@@ -10,5 +10,6 @@ func RegisterAuthRoutes(router *gin.RouterGroup, authHandler *handlers.AuthHandl
 	{
 		auth.POST("/signup", authHandler.Signup)
 		auth.POST("/login", authHandler.Login)
+		auth.POST("/forgot-password", authHandler.ForgotPassword)
 	}
 }
