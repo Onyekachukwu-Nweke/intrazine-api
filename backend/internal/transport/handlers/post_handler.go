@@ -54,3 +54,14 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 	log.Printf("Post successfully created: %+v", createdPost)
 	c.JSON(http.StatusCreated, gin.H{"message": "Post created successfully", "data": createdPost})
 }
+
+func (h *PostHandler) GetAllPosts(c *gin.Context) {
+	psts, err := h.Service.GetAllPosts(c.Request.Context())
+	if err != nil {
+		log.Print(err) // TODO: Replace with structured logging
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get all posts", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": psts})
+}
