@@ -19,6 +19,7 @@ type Server struct {
 
 func NewServer(routerMappings func(router *gin.Engine)) *Server {
 	router := gin.Default()
+	//router.RedirectTrailingSlash = false
 
 	// Map routes to handlers
 	routerMappings(router)

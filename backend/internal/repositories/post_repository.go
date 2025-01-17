@@ -70,10 +70,12 @@ func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error)
 	var posts []models.Post
 	for rows.Next() {
 		post := models.Post{}
-		err := rows.Scan(post.ID, post.UserId, post.Title, post.Content, post.CreatedAt, post.UpdatedAt)
+		var coverPhoto sql.NullString
+		err := rows.Scan(&post.ID, &post.UserId, &post.Title, &post.Content, &coverPhoto, &post.Likes, &post.CreatedAt, &post.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning post: %w", err)
 		}
+		post.CoverPhoto = coverPhoto.String // Will be empty string if NULL
 		posts = append(posts, post)
 	}
 
