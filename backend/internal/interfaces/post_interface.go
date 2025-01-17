@@ -10,8 +10,7 @@ type PostRepo interface {
 	GetAllPosts(context.Context) ([]models.Post, error)
 	GetPostById(context.Context, string) (models.Post, error)
 	UpdatePost(context.Context, string, models.Post) (models.Post, error)
-	//DeletePost(context.Context, string) error
-	//GetOwnerIDByPostID(ctx context.Context, postID string) (string, error)
+	DeletePost(context.Context, string) error
 }
 
 type PostService interface {
@@ -19,4 +18,5 @@ type PostService interface {
 	GetAllPosts(context.Context) ([]models.Post, error)
 	GetPostById(context.Context, string) (models.Post, error)
 	UpdatePost(context.Context, string, models.Post) (models.Post, error)
+	DeletePost(context.Context, string, string) error
 }

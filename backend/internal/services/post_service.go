@@ -67,6 +67,22 @@ func (s *PostService) UpdatePost(ctx context.Context, id string, updatedPost mod
 	return post, nil
 }
 
+func (s *PostService) DeletePost(ctx context.Context, id string, userId string) error {
+	// Fetch the existing post to check ownership
+	existingPost, err := s.Repo.GetPostById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Ensure the user is the owner of the post
+	if existingPost.UserId != userId {
+		return fmt.Errorf("user is not authorized to delete this post")
+	}
+
+	// Call the repository to delete the post
+	return s.Repo.DeletePost(ctx, id)
+}
+
 //func (s *PostService) GetAllPosts(ctx context.Context) ([]Post, error) {
 //	fmt.Println("Retrieving All Posts")
 //	post, err := s.PostStore.GetAllPosts(ctx)
