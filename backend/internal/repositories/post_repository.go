@@ -53,7 +53,6 @@ func (r *PostRepository) GetPostById(ctx context.Context, uuid string) (models.P
 		}
 		return post, fmt.Errorf("error fetching post from ID: %w", err)
 	}
-
 	return post, nil
 }
 

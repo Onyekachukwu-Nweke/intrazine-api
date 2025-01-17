@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	//"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/repositories"
@@ -31,6 +32,14 @@ func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
 		return nil, fmt.Errorf("error getting all posts: %w", err)
 	}
 
+	return post, nil
+}
+
+func (s *PostService) GetPostById(ctx context.Context, id string) (models.Post, error) {
+	post, err := s.Repo.GetPostById(ctx, id)
+	if err != nil {
+		return models.Post{}, err
+	}
 	return post, nil
 }
 

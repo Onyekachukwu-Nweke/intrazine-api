@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"log"
-	"net/http"
 )
 
 type PostHandler struct {
@@ -64,4 +65,17 @@ func (h *PostHandler) GetAllPosts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": psts})
+}
+
+func (h *PostHandler) GetPostById(c *gin.Context) {
+	id := c.Param("id") // Get the post ID from the URL parameters
+
+	post, err := h.Service.GetPostById(c.Request.Context(), id)
+	if err != nil {
+		log.Print(err) // TODO: Replace with structured logging
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get post", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": post})
 }

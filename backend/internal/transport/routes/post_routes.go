@@ -11,8 +11,8 @@ func RegisterPostRoutes(router *gin.RouterGroup, postHandler *handlers.PostHandl
 	posts := router.Group("/posts")
 	{
 		posts.POST("/", middleware.JWTAuth(), postHandler.CreatePost) // Create a new post
-		//posts.GET("/:id", postHandler.GetPostByID)       // Get a post by ID
-		posts.GET("/", postHandler.GetAllPosts) // Get all posts
+		posts.GET("/:id", postHandler.GetPostById)                    // Get a post by ID
+		posts.GET("/", postHandler.GetAllPosts)                       // Get all posts
 		//posts.PATCH("/:id", postHandler.UpdatePost)      // Update a post
 		//posts.DELETE("/:id", postHandler.DeletePost)     // Delete a post
 	}
