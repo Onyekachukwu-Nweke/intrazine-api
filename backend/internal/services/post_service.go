@@ -43,6 +43,30 @@ func (s *PostService) GetPostById(ctx context.Context, id string) (models.Post, 
 	return post, nil
 }
 
+func (s *PostService) UpdatePost(ctx context.Context, id string, updatedPost models.Post) (models.Post, error) {
+	// Validate the updated post
+	if updatedPost.Title == "" || updatedPost.Content == "" {
+		return models.Post{}, fmt.Errorf("title and content cannot be empty")
+	}
+
+	// Fetch the existing post to check ownership
+	existingPost, err := s.Repo.GetPostById(ctx, id)
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	// Ensure the user is the owner of the post
+	if existingPost.UserId != updatedPost.UserId {
+		return models.Post{}, fmt.Errorf("user is not authorized to update this post")
+	}
+
+	post, err := s.Repo.UpdatePost(ctx, id, updatedPost)
+	if err != nil {
+		return models.Post{}, err
+	}
+	return post, nil
+}
+
 //func (s *PostService) GetAllPosts(ctx context.Context) ([]Post, error) {
 //	fmt.Println("Retrieving All Posts")
 //	post, err := s.PostStore.GetAllPosts(ctx)

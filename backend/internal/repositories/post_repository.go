@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	"github.com/jmoiron/sqlx"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type PostRepository struct {
@@ -85,7 +86,8 @@ func (r *PostRepository) GetAllPosts(ctx context.Context) ([]models.Post, error)
 	return posts, nil
 }
 
-func (r *PostRepository) UpdatePost(ctx context.Context, post models.Post) (models.Post, error) {
+func (r *PostRepository) UpdatePost(ctx context.Context, id string, post models.Post) (models.Post, error) {
+	post.ID = id
 	post.UpdatedAt = time.Now().Format(time.DateTime)
 	rows, err := r.DB.NamedQueryContext(
 		ctx,

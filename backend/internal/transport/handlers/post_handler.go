@@ -79,3 +79,43 @@ func (h *PostHandler) GetPostById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": post})
 }
+
+func (h *PostHandler) UpdatePost(c *gin.Context) {
+	id := c.Param("id") // Get the post ID from the URL parameters
+
+	// Extract user ID from the context (set by JWT middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Parse request body into the `models.Post` struct
+	var updatedPost models.Post
+	if err := c.ShouldBindJSON(&updatedPost); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "details": err.Error()})
+		return
+	}
+
+	// Set the user ID on the updated post
+	updatedPost.UserId = userID.(string)
+
+	// Validate the input
+	validate := validator.New()
+	if err := validate.Struct(updatedPost); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation failed", "details": err.Error()})
+		return
+	}
+
+	// Call the service layer to update the post
+	post, err := h.Service.UpdatePost(c.Request.Context(), id, updatedPost)
+	if err != nil {
+		log.Printf("Failed to update post: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post", "details": err.Error()})
+		return
+	}
+
+	// Log success and respond
+	log.Printf("Post successfully updated: %+v", post)
+	c.JSON(http.StatusOK, gin.H{"message": "Post updated successfully", "data": post})
+}
