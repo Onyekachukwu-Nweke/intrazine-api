@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // RegisterRoutes sets up all routes for the application.
@@ -16,7 +17,7 @@ func RegisterRoutes(router *gin.Engine, postHandler *handlers.PostHandler, authH
 	api := router.Group("/api/v1")
 	{
 		RegisterPostRoutes(api, postHandler)
-		RegisterAuthRoutes(api, authHandler)
 		RegisterCommentRoutes(api, commentHandler)
+		RegisterAuthRoutes(api, authHandler)
 	}
 }

@@ -1,19 +1,17 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
+	"github.com/gin-gonic/gin"
 )
 
-func RegisterCommentRoutes(r *gin.RouterGroup, h *handlers.CommentHandler) {
-	comments := r.Group("/posts/:postId/comments")
+func RegisterCommentRoutes(router *gin.RouterGroup, commentHandler *handlers.CommentHandler) {
+	comments := router.Group("/posts/:id/comments")
 	{
-		comments.POST("", h.CreateComment)
-		comments.GET("", h.GetCommentsByPost)
+		comments.POST("/", commentHandler.CreateComment)
+		comments.GET("/", commentHandler.GetCommentsByPost)
+		comments.GET("/:commentId", commentHandler.GetComment)
+		comments.PUT("/:comentId", commentHandler.UpdateComment)
+		comments.DELETE("/:commentId", commentHandler.DeleteComment)
 	}
-
-	// Direct comment routes
-	r.GET("/comments/:commentId", h.GetComment)
-	r.PUT("/comments/:commentId", h.UpdateComment)
-	r.DELETE("/comments/:commentId", h.DeleteComment)
 }

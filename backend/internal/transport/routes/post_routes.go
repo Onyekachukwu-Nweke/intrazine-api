@@ -7,13 +7,12 @@ import (
 )
 
 func RegisterPostRoutes(router *gin.RouterGroup, postHandler *handlers.PostHandler) {
-	// Group routes under `/posts`
 	posts := router.Group("/posts")
 	{
-		posts.POST("/", middleware.JWTAuth(), postHandler.CreatePost)      // Create a new post
-		posts.GET("/:id", postHandler.GetPostById)                         // Get a post by ID
-		posts.GET("/", postHandler.GetAllPosts)                            // Get all posts
-		posts.PATCH("/:id", middleware.JWTAuth(), postHandler.UpdatePost)  // Update a post
-		posts.DELETE("/:id", middleware.JWTAuth(), postHandler.DeletePost) // Delete a post
+		posts.POST("/", middleware.JWTAuth(), postHandler.CreatePost)
+		posts.GET("/", postHandler.GetAllPosts)
+		posts.GET("/:id", postHandler.GetPostById)
+		posts.PATCH("/:id", middleware.JWTAuth(), postHandler.UpdatePost)
+		posts.DELETE("/:id", middleware.JWTAuth(), postHandler.DeletePost)
 	}
 }

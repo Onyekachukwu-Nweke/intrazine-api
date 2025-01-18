@@ -19,7 +19,7 @@ func NewCommentHandler(commentService interfaces.CommentService) *CommentHandler
 }
 
 func (h *CommentHandler) CreateComment(c *gin.Context) {
-	postID := c.Param("postId")
+	postID := c.Param("id")
 	userID := c.GetString("userId") // From auth middleware
 
 	var comment models.Comment
@@ -52,7 +52,7 @@ func (h *CommentHandler) GetComment(c *gin.Context) {
 }
 
 func (h *CommentHandler) GetCommentsByPost(c *gin.Context) {
-	postID := c.Param("postId")
+	postID := c.Param("id")
 
 	comments, err := h.commentService.GetCommentsByPostID(c.Request.Context(), postID)
 	if err != nil {
