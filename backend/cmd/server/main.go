@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/config"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/repositories"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/services"
@@ -9,7 +11,6 @@ import (
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/handlers"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/transport/routes"
 	"github.com/gin-gonic/gin"
-	"log"
 
 	// "github.com/joho/godotenv"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/db"
@@ -32,19 +33,22 @@ func Run(cfg *config.Config) error {
 
 	// Initialize repositories
 	postRepo := repositories.NewPostRepository(database.Client)
+	commentRepo := repositories.NewCommentRepository(database.Client)
 	userRepo := repositories.NewUserRepository(database.Client)
 
 	// Initialize services
 	postService := services.NewPostService(postRepo)
 	authService := services.NewAuthService(userRepo)
+	commentService := services.NewCommentService(commentRepo, postService)
 
 	// Initialize handlers
 	postHandler := handlers.NewPostHandler(postService)
 	authHandler := handlers.NewAuthHandler(authService)
+	commentHandler := handlers.NewCommentHandler(commentService)
 
 	// Setup router
 	server := transport.NewServer(func(router *gin.Engine) {
-		routes.RegisterRoutes(router, postHandler, authHandler)
+		routes.RegisterRoutes(router, postHandler, authHandler, commentHandler)
 	})
 
 	// Start the server
