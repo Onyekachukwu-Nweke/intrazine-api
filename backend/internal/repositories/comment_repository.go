@@ -3,10 +3,11 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
-	"github.com/jmoiron/sqlx"
-	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
 	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/interfaces"
+	"github.com/Onyekachukwu-Nweke/piko-blog/backend/internal/models"
+	"github.com/jmoiron/sqlx"
 )
 
 type CommentRepository struct {
@@ -29,6 +30,7 @@ func (r *CommentRepository) Create(ctx context.Context, comment *models.Comment)
 func (r *CommentRepository) GetByID(ctx context.Context, id string) (*models.Comment, error) {
 	comment := &models.Comment{}
 	query := `SELECT * FROM comments WHERE id = $1`
+	fmt.Println(id)
 	err := r.DB.QueryRowxContext(ctx, query, id).StructScan(comment)
 	if err == sql.ErrNoRows {
 		return nil, nil

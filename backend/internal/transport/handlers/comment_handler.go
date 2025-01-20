@@ -20,7 +20,7 @@ func NewCommentHandler(commentService interfaces.CommentService) *CommentHandler
 
 func (h *CommentHandler) CreateComment(c *gin.Context) {
 	postID := c.Param("id")
-	userID := c.GetString("userId") // From auth middleware
+	userID := c.GetString("user_id") // From auth middleware
 
 	var comment models.Comment
 	if err := c.ShouldBindJSON(&comment); err != nil {
@@ -36,7 +36,7 @@ func (h *CommentHandler) CreateComment(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, gin.H{"data": comment})
 }
 
 func (h *CommentHandler) GetComment(c *gin.Context) {
@@ -65,7 +65,7 @@ func (h *CommentHandler) GetCommentsByPost(c *gin.Context) {
 
 func (h *CommentHandler) UpdateComment(c *gin.Context) {
 	commentID := c.Param("commentId")
-	userID := c.GetString("userId") // From auth middleware
+	userID := c.GetString("user_id") // From auth middleware
 
 	var comment models.Comment
 	if err := c.ShouldBindJSON(&comment); err != nil {
@@ -84,12 +84,12 @@ func (h *CommentHandler) UpdateComment(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"data": comment})
 }
 
 func (h *CommentHandler) DeleteComment(c *gin.Context) {
 	commentID := c.Param("commentId")
-	userID := c.GetString("userId") // From auth middleware
+	userID := c.GetString("user_id") // From auth middleware
 
 	if err := h.commentService.DeleteComment(c.Request.Context(), userID, commentID); err != nil {
 		status := http.StatusInternalServerError

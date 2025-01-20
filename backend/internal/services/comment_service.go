@@ -89,14 +89,14 @@ func (s *CommentService) UpdateComment(ctx context.Context, userID string, comme
 		return ErrUnauthorized
 	}
 
-	if err := s.validateComment(ctx, comment); err != nil {
-		return err
-	}
-
 	// Preserve original metadata
 	comment.UserId = existing.UserId
 	comment.PostId = existing.PostId
 	comment.CreatedAt = existing.CreatedAt
+
+	if err := s.validateComment(ctx, comment); err != nil {
+		return err
+	}
 
 	return s.commentRepo.Update(ctx, comment)
 }
