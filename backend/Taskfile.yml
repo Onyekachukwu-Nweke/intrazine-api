@@ -16,8 +16,8 @@ tasks:
 
   run-docker:
     cmds:
-      - docker compose -f "docker-compose.yaml" up --build -d
+      - docker compose -f "../docker-compose.yaml" up --build -d
 
   start-db:
     cmds:
-      - docker compose -f "docker-compose-db.yaml" up -d
+      - docker compose -f "../docker-compose-db.yaml" up -d
