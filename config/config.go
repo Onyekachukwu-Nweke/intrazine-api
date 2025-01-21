@@ -26,18 +26,17 @@ func LoadConfig(envFile string) (*Config, error) {
 	}
 
 	// Get DB Port with default value
-	dbPort := getEnv("DB_PORT", "5432")
+	// dbPort := getEnv("DB_PORT", "5432")
 	//if err != nil {
 	//	return nil, fmt.Errorf("invalid DB_PORT: %w", err)
 	//}
 
 	config := &Config{
 		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBPort:     dbPort,
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", ""),
-		DBName:     getEnv("DB_NAME", "myapp"),
-		DBTable:    getEnv("DB_TABLE", "myapp"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBUser:     getEnv("DB_USERNAME", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBName:     getEnv("DB_NAME", "intrazine"),
 		DBSSLMode:  getEnv("DB_SSLMODE", "disable"),
 	}
 
